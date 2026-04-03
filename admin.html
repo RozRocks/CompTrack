@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBM LeadTool — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #090c18; --surface: #0e1525; --surface2: #141d35; --surface3: #1a2540;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+    --blue: #2563eb; --blue-hover: #1d4ed8; --blue-dim: rgba(37,99,235,0.12); --blue-border: rgba(37,99,235,0.35);
+    --text: #e8eaf0; --muted: #6b7394;
+    --danger: #ef4444; --danger-dim: rgba(239,68,68,0.15);
+    --success: #22c55e; --success-dim: rgba(34,197,94,0.15);
+    --warn: #f97316; --warn-dim: rgba(249,115,22,0.15);
+    --radius: 12px;
+    --font-head: 'Rajdhani', sans-serif; --font-mono: 'IBM Plex Mono', monospace; --font-body: 'Inter', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; font-size: 14px; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 28px; display: flex; align-items: center; justify-content: space-between; height: 54px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: var(--font-head); font-size: 18px; font-weight: 700; letter-spacing: 1.5px; color: var(--blue); display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 26px; height: 26px; background: var(--blue); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 14px; height: 14px; fill: #fff; }
+  .logo-sub { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: var(--muted); margin-left: 2px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .btn { font-family: var(--font-head); font-size: 14px; font-weight: 600; padding: 7px 16px; border-radius: 7px; border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-hover); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+  .btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); font-size: 12px; padding: 4px 10px; }
+  .btn-sm { font-size: 12px; padding: 5px 12px; }
+  .nav-link { font-family: var(--font-head); font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border2); }
+  .nav-link:hover { color: var(--text); background: var(--surface2); }
+  .btn-logout { background: none; border: none; color: var(--muted); cursor: pointer; font-family: var(--font-mono); font-size: 11px; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-family: var(--font-head); font-size: 22px; font-weight: 700; }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
+  .section-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .section-title { font-family: var(--font-head); font-size: 16px; font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; padding: 10px 18px; text-align: left; border-bottom: 1px solid var(--border2); }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody td { padding: 12px 18px; vertical-align: middle; }
+  .user-name { font-weight: 500; }
+  .user-email { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .role-badge { font-family: var(--font-mono); font-size: 10px; padding: 3px 9px; border-radius: 20px; }
+  .role-admin { background: var(--blue-dim); color: var(--blue); }
+  .role-sales { background: var(--success-dim); color: var(--success); }
+  .role-tech { background: var(--surface2); color: var(--muted); border: 1px solid var(--border2); }
+  .status-active { font-family: var(--font-mono); font-size: 10px; color: var(--success); }
+  .status-inactive { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(4px); padding: 20px; }
+  .modal-overlay.hidden { display: none; }
+  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; width: 100%; max-width: 440px; overflow: hidden; animation: fadeUp 0.2s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .modal-header { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; }
+  .modal-close { background: var(--surface2); border: none; color: var(--muted); cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .modal-body { padding: 20px 22px; }
+  .modal-footer { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  input, select { background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 15px; padding: 10px 13px; width: 100%; outline: none; -webkit-appearance: none; }
+  input:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-dim); }
+  select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238890a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+  .error-msg { background: var(--danger-dim); border: 1px solid rgba(239,68,68,0.3); color: var(--danger); border-radius: 7px; padding: 9px 13px; font-size: 12px; margin-bottom: 12px; display: none; }
+  .error-msg.show { display: block; }
+  .info-box { background: var(--blue-dim); border: 1px solid var(--blue-border); border-radius: 10px; padding: 14px 18px; font-size: 13px; line-height: 1.6; margin-bottom: 20px; }
+  .info-box strong { color: var(--blue); font-family: var(--font-head); font-size: 14px; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface2); border: 1px solid var(--blue-border); color: var(--blue); font-family: var(--font-mono); font-size: 12px; padding: 10px 16px; border-radius: 10px; z-index: 999; opacity: 0; transform: translateY(6px); transition: all 0.2s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { border-color: rgba(239,68,68,0.4); color: var(--danger); }
+  .toast.success { border-color: rgba(34,197,94,0.4); color: var(--success); }
+  .empty-row td { text-align: center; padding: 40px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon"><svg viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L13 10.414V17a1 1 0 01-1.447.894l-4-2A1 1 0 017 15V10.414L3.293 6.707A1 1 0 013 6V4z"/></svg></div>
+    MBM LeadTool <span class="logo-sub">ADMIN</span>
+  </div>
+  <div class="header-right">
+    <a href="dashboard.html" class="nav-link">Sales Dashboard</a>
+    <a href="index.html" class="nav-link">Field App</a>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <div><div class="page-title">User Management</div><div class="page-sub">Add, manage and deactivate users</div></div>
+    <button class="btn btn-primary" onclick="openAddUser()">+ Add User</button>
+  </div>
+
+  <div class="info-box">
+    <strong>First-time setup?</strong><br>
+    To create the first admin account, go to <strong>Firebase Console → Authentication → Add User</strong>, then open Firestore and create a document in the <code>users</code> collection with that user's UID containing: <code>name, email, role: "admin", isActive: true</code>.
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Users</div>
+      <span id="userCount" style="font-family:var(--font-mono);font-size:11px;color:var(--muted);"></span>
+    </div>
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Added</th><th></th></tr></thead>
+      <tbody id="userTable"><tr class="empty-row"><td colspan="6">Loading users...</td></tr></tbody>
+    </table>
+  </div>
+</main>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay hidden" id="addModal" onclick="if(event.target.id==='addModal')closeAddUser()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add User</div>
+      <button class="modal-close" onclick="closeAddUser()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="error-msg" id="addError"></div>
+      <div class="form-group"><label>Full Name</label><input type="text" id="uName" placeholder="Jane Smith"></div>
+      <div class="form-group"><label>Email Address</label><input type="email" id="uEmail" placeholder="jane@mbm.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="uPass" placeholder="Min. 8 characters"></div>
+      <div class="form-group"><label>Role</label>
+        <select id="uRole">
+          <option value="tech">Tech — Can log equipment and submit leads</option>
+          <option value="sales">Sales — Can view and manage leads</option>
+          <option value="admin">Admin — Full access including user management</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAddUser()">Cancel</button>
+      <button class="btn btn-primary" id="addBtn" onclick="createUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBhgeKTEsSMQyXEKGvZ2iMO8yfXTHpLhZo",
+    authDomain: "comptrack-d9cff.firebaseapp.com",
+    projectId: "comptrack-d9cff",
+    storageBucket: "comptrack-d9cff.firebasestorage.app",
+    messagingSenderId: "419068288887",
+    appId: "1:419068288887:web:191e2b7388a1007caccb72",
+    measurementId: "G-L1Z1PNMPJ1"
+  };
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+let currentUser = null;
+
+// ── AUTH GUARD (admin only) ───────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  const doc = await db.collection('users').doc(user.uid).get();
+  if (!doc.exists || doc.data().role !== 'admin') { window.location.href = 'login.html'; return; }
+  currentUser = { uid: user.uid, ...doc.data() };
+  loadUsers();
+});
+
+async function logout() { await auth.signOut(); window.location.href = 'login.html'; }
+
+// ── LOAD USERS ────────────────────────────────────────────
+function loadUsers() {
+  db.collection('users').orderBy('createdAt','desc').onSnapshot(snap => {
+    const users = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+    document.getElementById('userCount').textContent = `${users.length} user${users.length!==1?'s':''}`;
+    const tbody = document.getElementById('userTable');
+    if (!users.length) { tbody.innerHTML='<tr class="empty-row"><td colspan="6">No users yet</td></tr>'; return; }
+    tbody.innerHTML = users.map(u => `<tr>
+      <td><div class="user-name">${u.name||'—'}</div></td>
+      <td><div class="user-email">${u.email||'—'}</div></td>
+      <td><span class="role-badge role-${u.role}">${u.role||'tech'}</span></td>
+      <td>${u.isActive!==false ? '<span class="status-active">● Active</span>' : '<span class="status-inactive">○ Inactive</span>'}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
+      <td style="display:flex;gap:6px;align-items:center;">
+        ${u.uid !== currentUser.uid ? `
+          <button class="btn btn-ghost btn-sm" onclick="toggleActive('${u.uid}','${u.name||u.email}',${u.isActive!==false})">${u.isActive!==false?'Deactivate':'Reactivate'}</button>
+          ${u.role !== 'admin' ? `<button class="btn btn-danger" onclick="deleteUserRecord('${u.uid}','${u.name||u.email}')">Remove</button>` : ''}
+        ` : '<span style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">you</span>'}
+      </td>
+    </tr>`).join('');
+  });
+}
+
+// ── TOGGLE ACTIVE ─────────────────────────────────────────
+async function toggleActive(uid, name, isCurrentlyActive) {
+  const action = isCurrentlyActive ? 'deactivate' : 'reactivate';
+  if (!confirm(`${action.charAt(0).toUpperCase()+action.slice(1)} ${name}?\n\nDeactivated users cannot sign in.`)) return;
+  try {
+    await db.collection('users').doc(uid).update({ isActive: !isCurrentlyActive });
+    showToast(`User ${action}d`, 'success');
+  } catch(e) { showToast('Update failed','error'); }
+}
+
+// ── DELETE USER RECORD ────────────────────────────────────
+async function deleteUserRecord(uid, name) {
+  if (!confirm(`Remove ${name}?\n\nThis removes their profile from the system. Note: their Firebase Auth login will still exist — you can delete it from the Firebase Console under Authentication if needed.`)) return;
+  try {
+    await db.collection('users').doc(uid).delete();
+    showToast('User record removed', 'success');
+  } catch(e) { showToast('Remove failed','error'); }
+}
+
+// ── ADD USER ──────────────────────────────────────────────
+function openAddUser() {
+  ['uName','uEmail','uPass'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('uRole').value = 'tech';
+  document.getElementById('addError').classList.remove('show');
+  document.getElementById('addModal').classList.remove('hidden');
+}
+
+function closeAddUser() { document.getElementById('addModal').classList.add('hidden'); }
+
+async function createUser() {
+  const name  = document.getElementById('uName').value.trim();
+  const email = document.getElementById('uEmail').value.trim();
+  const pass  = document.getElementById('uPass').value;
+  const role  = document.getElementById('uRole').value;
+  const errEl = document.getElementById('addError');
+  errEl.classList.remove('show');
+
+  if (!name) { showAddError('Please enter a full name.'); return; }
+  if (!email) { showAddError('Please enter an email address.'); return; }
+  if (pass.length < 8) { showAddError('Password must be at least 8 characters.'); return; }
+
+  const btn = document.getElementById('addBtn'); btn.disabled = true; btn.textContent = 'Creating...';
+
+  try {
+    // Use secondary app instance so we don't log out the current admin
+    const secondaryApp = firebase.initializeApp(firebaseConfig, `secondary_${Date.now()}`);
+    let newUid;
+    try {
+      const cred = await secondaryApp.auth().createUserWithEmailAndPassword(email, pass);
+      newUid = cred.user.uid;
+      await secondaryApp.auth().signOut();
+    } finally {
+      await secondaryApp.delete();
+    }
+
+    await db.collection('users').doc(newUid).set({
+      name, email, role, isActive: true,
+      createdAt: Date.now(), createdBy: currentUser.uid
+    });
+
+    closeAddUser();
+    showToast(`${name} added as ${role}`, 'success');
+  } catch(e) {
+    const msgs = { 'auth/email-already-in-use': 'An account with that email already exists.', 'auth/invalid-email': 'Invalid email address.', 'auth/weak-password': 'Password is too weak — use at least 8 characters.' };
+    showAddError(msgs[e.code] || e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create User';
+  }
+}
+
+function showAddError(msg) {
+  const el = document.getElementById('addError');
+  el.textContent = msg; el.classList.add('show');
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type}`;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeAddUser(); });
+</script>
+</body>
+</html>
