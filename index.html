@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>CompTrack — Field App</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -15,136 +15,170 @@
     --danger: #ef4444; --danger-dim: rgba(239,68,68,0.15);
     --success: #22c55e; --success-dim: rgba(34,197,94,0.15);
     --warn: #f97316; --warn-dim: rgba(249,115,22,0.15);
-    --radius: 10px;
+    --radius: 12px; --tap: 48px;
     --font-head: 'Rajdhani', sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
     --font-body: 'Inter', sans-serif;
   }
+  *, *::before, *::after { -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; font-size: 15px; }
 
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
-  .logo { font-family: var(--font-head); font-size: 22px; font-weight: 700; letter-spacing: 2px; color: var(--amber); text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
-  .logo-icon { width: 30px; height: 30px; background: var(--amber); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-  .logo-icon svg { width: 18px; height: 18px; fill: #0f1117; }
-  .header-right { display: flex; align-items: center; gap: 14px; }
-  .nav-link { font-family: var(--font-head); font-size: 14px; font-weight: 600; letter-spacing: 0.5px; color: var(--muted); text-decoration: none; padding: 6px 12px; border-radius: 7px; border: 1px solid var(--border2); transition: all 0.15s; }
-  .nav-link:hover { color: var(--text); background: var(--surface2); }
-
-  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: background 0.3s; flex-shrink: 0; }
-  .sync-dot.connected { background: var(--success); box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: var(--font-head); font-size: 21px; font-weight: 700; letter-spacing: 2px; color: var(--amber); display: flex; align-items: center; gap: 9px; }
+  .logo-icon { width: 28px; height: 28px; background: var(--amber); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo-icon svg { width: 16px; height: 16px; fill: #0f1117; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .sync-pill { display: flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 5px 10px; }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background 0.3s; flex-shrink: 0; }
+  .sync-dot.connected { background: var(--success); box-shadow: 0 0 5px rgba(34,197,94,0.5); }
   .sync-dot.connecting { background: var(--amber); }
   .sync-dot.error { background: var(--danger); }
   .sync-label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .nav-link { font-family: var(--font-head); font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 6px 11px; border-radius: 7px; border: 1px solid var(--border2); transition: all 0.15s; white-space: nowrap; }
+  .nav-link:hover { color: var(--text); background: var(--surface2); }
 
-  .btn { font-family: var(--font-head); font-size: 15px; font-weight: 600; letter-spacing: 0.5px; padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px; }
+  .btn { font-family: var(--font-head); font-size: 15px; font-weight: 600; letter-spacing: 0.5px; padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 7px; min-height: var(--tap); }
   .btn-primary { background: var(--amber); color: #0f1117; }
-  .btn-primary:hover { background: #fbbf24; transform: translateY(-1px); }
+  .btn-primary:hover { background: #fbbf24; }
+  .btn-primary:active { transform: scale(0.97); }
   .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
   .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
   .btn-ghost:hover { background: var(--surface2); color: var(--text); }
   .btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
-  .btn-danger:hover { background: rgba(239,68,68,0.25); }
-  .btn-sm { font-size: 13px; padding: 6px 14px; }
+  .btn-sm { font-size: 13px; padding: 6px 14px; min-height: 38px; }
+  .btn-log-desktop { display: inline-flex; }
 
-  main { max-width: 1300px; margin: 0 auto; padding: 28px 24px; }
+  .fab { position: fixed; bottom: 20px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: var(--amber); color: #0f1117; border: none; font-size: 30px; cursor: pointer; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(245,158,11,0.45); z-index: 90; transition: transform 0.15s; }
+  .fab:active { transform: scale(0.93); }
 
-  .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
-  .stat-label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-  .stat-value { font-family: var(--font-head); font-size: 32px; font-weight: 700; color: var(--text); line-height: 1; }
+  main { max-width: 1300px; margin: 0 auto; padding: 22px 20px 100px; }
+
+  .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .stat-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .stat-value { font-family: var(--font-head); font-size: 30px; font-weight: 700; color: var(--text); line-height: 1; }
   .stat-card.amber .stat-value { color: var(--amber); }
   .stat-card.danger .stat-value { color: var(--danger); }
   .stat-card.success .stat-value { color: var(--success); }
 
-  .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-  .search-wrap { flex: 1; min-width: 200px; position: relative; }
-  .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted); }
-  input[type="text"], input[type="date"], input[type="number"], select, textarea { background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 14px; padding: 10px 14px; width: 100%; outline: none; transition: border-color 0.15s; }
-  input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-dim); }
-  .search-input { padding-left: 38px; }
-  select { cursor: pointer; appearance: none; }
+  .controls { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .search-wrap { flex: 1; min-width: 160px; position: relative; }
+  .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--muted); pointer-events: none; }
+
+  input[type="text"], input[type="date"], input[type="number"], select, textarea {
+    background: var(--surface); border: 1px solid var(--border2); border-radius: 8px;
+    color: var(--text); font-family: var(--font-body); font-size: 16px;
+    padding: 11px 14px; width: 100%; outline: none; transition: border-color 0.15s;
+    min-height: var(--tap); -webkit-appearance: none; appearance: none;
+  }
+  input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+    border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-dim);
+  }
+  input[type="date"] { min-width: 0; cursor: pointer; }
+  .search-input { padding-left: 36px; }
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238890a8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+  }
   textarea { resize: vertical; min-height: 80px; }
 
-  .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
   .device-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s, transform 0.15s; cursor: pointer; }
   .device-card:hover { border-color: var(--border2); transform: translateY(-2px); }
-  .device-photo-placeholder { width: 100%; height: 180px; background: var(--surface2); display: flex; align-items: center; justify-content: center; color: var(--muted); font-family: var(--font-mono); font-size: 12px; flex-direction: column; gap: 8px; }
-  .device-photo-placeholder svg { width: 40px; height: 40px; opacity: 0.3; }
-  .device-body { padding: 16px; }
-  .device-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
-  .device-make { font-family: var(--font-head); font-size: 19px; font-weight: 700; color: var(--text); line-height: 1.1; }
-  .device-model { font-family: var(--font-mono); font-size: 12px; color: var(--amber); margin-top: 2px; }
-  .lease-badge { font-family: var(--font-mono); font-size: 10px; font-weight: 500; padding: 4px 9px; border-radius: 20px; white-space: nowrap; letter-spacing: 0.5px; }
+  .device-card:active { transform: scale(0.99); }
+  .card-photo { width: 100%; height: 170px; object-fit: cover; background: var(--surface2); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; color: var(--muted); }
+  .card-photo svg { width: 38px; height: 38px; opacity: 0.25; }
+  .card-photo-img { width: 100%; height: 170px; object-fit: cover; display: block; }
+  .card-photo span { font-family: var(--font-mono); font-size: 11px; }
+  .card-body { padding: 14px; }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .card-make { font-family: var(--font-head); font-size: 18px; font-weight: 700; line-height: 1.1; }
+  .card-model { font-family: var(--font-mono); font-size: 11px; color: var(--amber); margin-top: 2px; }
+  .card-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+  .card-type-badge { font-family: var(--font-mono); font-size: 10px; color: var(--muted); background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 3px 8px; white-space: nowrap; }
+  .lease-badge { font-family: var(--font-mono); font-size: 10px; font-weight: 500; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
   .badge-active { background: var(--success-dim); color: var(--success); }
   .badge-expiring { background: var(--warn-dim); color: var(--warn); }
   .badge-expired { background: var(--danger-dim); color: var(--danger); }
   .badge-unknown { background: var(--surface2); color: var(--muted); }
-  .device-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-  .meta-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px; }
+  .card-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0 12px; }
+  .meta-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 2px; }
   .meta-value { font-size: 13px; color: var(--text); font-weight: 500; }
-  .device-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 12px; }
-  .device-age { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px; }
+  .card-age { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
 
-  .empty-state { text-align: center; padding: 80px 24px; color: var(--muted); border: 1px dashed var(--border2); border-radius: var(--radius); }
-  .empty-state svg { width: 52px; height: 52px; opacity: 0.3; margin-bottom: 16px; }
-  .empty-state h3 { font-family: var(--font-head); font-size: 20px; color: var(--text); margin-bottom: 6px; }
+  .empty-state { text-align: center; padding: 60px 24px; color: var(--muted); border: 1px dashed var(--border2); border-radius: var(--radius); grid-column: 1 / -1; }
+  .empty-state svg { width: 48px; height: 48px; opacity: 0.25; margin-bottom: 14px; }
+  .empty-state h3 { font-family: var(--font-head); font-size: 19px; color: var(--text); margin-bottom: 5px; }
   .empty-state p { font-size: 14px; }
 
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: flex-start; justify-content: center; z-index: 200; padding: 20px; overflow-y: auto; backdrop-filter: blur(4px); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.72); display: flex; align-items: flex-end; justify-content: center; z-index: 200; backdrop-filter: blur(4px); }
   .modal-overlay.hidden { display: none; }
-  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; width: 100%; max-width: 620px; margin: auto; overflow: hidden; animation: slideUp 0.2s ease; }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-  .modal-header { padding: 22px 24px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .modal-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
-  .modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 22px; line-height: 1; padding: 4px; border-radius: 6px; transition: color 0.15s; }
-  .modal-close:hover { color: var(--text); background: var(--surface2); }
-  .modal-body { padding: 24px; }
-  .modal-footer { padding: 18px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 18px 18px 0 0; width: 100%; max-width: 640px; max-height: 94vh; display: flex; flex-direction: column; animation: sheetUp 0.22s ease; }
+  @keyframes sheetUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
+  .modal-header { padding: 16px 20px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .modal-title { font-family: var(--font-head); font-size: 19px; font-weight: 700; }
+  .modal-close { background: var(--surface2); border: none; color: var(--muted); cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.15s; }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 18px 20px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+  .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-shrink: 0; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
 
-  .form-section { margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px solid var(--border); }
+  .form-section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
   .form-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-  .section-title { font-family: var(--font-head); font-size: 13px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
-  .form-row { display: grid; gap: 12px; margin-bottom: 12px; }
+  .section-title { font-family: var(--font-head); font-size: 12px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .form-row { display: grid; gap: 10px; margin-bottom: 10px; }
   .form-row.cols2 { grid-template-columns: 1fr 1fr; }
-  .form-row.cols3 { grid-template-columns: 1fr 1fr 1fr; }
   .form-group { display: flex; flex-direction: column; gap: 5px; }
   label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
 
-  .photo-drop { border: 2px dashed var(--border2); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; overflow: hidden; }
-  .photo-drop:hover, .photo-drop.drag-over { border-color: var(--amber); background: var(--amber-dim); }
-  .photo-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
-  .photo-drop-icon { font-size: 32px; margin-bottom: 8px; }
-  .photo-drop p { font-size: 13px; color: var(--muted); }
-  .photo-drop strong { color: var(--amber); }
-  .photo-preview-wrap { position: relative; margin-top: 10px; }
-  .photo-preview-wrap img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; display: block; }
-  .photo-remove { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: none; color: #fff; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .photo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .photo-btn-label { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 18px 12px; cursor: pointer; transition: all 0.15s; min-height: 88px; text-align: center; }
+  .photo-btn-label:hover, .photo-btn-label:active { border-color: var(--amber); background: var(--amber-dim); }
+  .photo-btn-label input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .photo-btn-icon { font-size: 26px; line-height: 1; }
+  .photo-btn-text { font-family: var(--font-head); font-size: 14px; font-weight: 600; color: var(--text); }
+  .photo-btn-sub { font-size: 11px; color: var(--muted); }
+  .photo-preview-wrap { position: relative; border-radius: 10px; overflow: hidden; }
+  .photo-preview-wrap img { width: 100%; max-height: 220px; object-fit: cover; display: block; }
+  .photo-remove { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); border: none; color: #fff; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
 
-  .detail-photo { width: 100%; max-height: 280px; object-fit: cover; }
-  .detail-photo-placeholder { width: 100%; height: 200px; background: var(--surface2); display: flex; align-items: center; justify-content: center; }
-  .detail-photo-placeholder svg { width: 52px; height: 52px; opacity: 0.25; }
-  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 22px 24px; }
-  .detail-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
-  .detail-value { font-size: 15px; color: var(--text); font-weight: 500; }
-  .detail-notes { padding: 0 24px 22px; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px; }
+  .detail-photo { width: 100%; max-height: 260px; object-fit: cover; display: block; }
+  .detail-photo-placeholder { width: 100%; height: 160px; background: var(--surface2); display: flex; align-items: center; justify-content: center; }
+  .detail-photo-placeholder svg { width: 48px; height: 48px; opacity: 0.2; }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 18px 20px; }
+  .detail-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+  .detail-value { font-size: 14px; color: var(--text); font-weight: 500; }
+  .detail-notes { padding: 0 20px 20px; border-top: 1px solid var(--border); padding-top: 14px; }
 
-  .upload-progress { background: var(--surface2); border-radius: 4px; height: 4px; margin-top: 10px; overflow: hidden; display: none; }
-  .upload-progress-bar { height: 100%; background: var(--amber); width: 0%; transition: width 0.3s; }
-
-  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface2); border: 1px solid var(--amber-border); color: var(--amber); font-family: var(--font-mono); font-size: 13px; padding: 12px 20px; border-radius: 10px; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.25s; pointer-events: none; }
-  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast { position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--surface2); border: 1px solid var(--amber-border); color: var(--amber); font-family: var(--font-mono); font-size: 12px; padding: 10px 18px; border-radius: 20px; z-index: 999; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.error { border-color: rgba(239,68,68,0.4); color: var(--danger); }
 
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-  @media (max-width: 600px) {
-    .stats-bar { grid-template-columns: repeat(2, 1fr); }
-    .form-row.cols2, .form-row.cols3 { grid-template-columns: 1fr; }
-    .detail-grid { grid-template-columns: 1fr; }
-    header { padding: 0 16px; }
-    main { padding: 20px 16px; }
+  @media (min-width: 640px) {
+    main { padding: 24px 24px 40px; }
+    .modal { border-radius: 16px; max-height: 90vh; align-self: center; }
+    .modal-handle { display: none; }
+    .modal-overlay { align-items: center; }
+    .toast { bottom: 24px; }
+    .form-row.cols2 { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 639px) {
+    .stats-bar { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-value { font-size: 26px; }
+    .form-row.cols2 { grid-template-columns: 1fr; }
+    .detail-grid { grid-template-columns: 1fr; gap: 14px; padding: 14px 18px; }
+    .btn-log-desktop { display: none; }
+    .fab { display: flex; }
+    .device-grid { grid-template-columns: 1fr; }
+    .controls select { font-size: 14px; }
+    .modal-body { padding: 14px 16px; }
+    .modal-footer { padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
   }
 </style>
 </head>
@@ -158,11 +192,13 @@
     CompTrack
   </div>
   <div class="header-right">
-    <div class="sync-dot" id="syncDot"></div>
-    <span class="sync-label" id="syncLabel">Connecting...</span>
-    <a href="dashboard.html" class="nav-link">Sales View →</a>
-    <button class="btn btn-primary" onclick="openAddModal()">
-      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
+    <div class="sync-pill">
+      <div class="sync-dot" id="syncDot"></div>
+      <span class="sync-label" id="syncLabel">Connecting</span>
+    </div>
+    <a href="dashboard.html" class="nav-link">Sales →</a>
+    <button class="btn btn-primary btn-log-desktop" onclick="openAddModal()">
+      <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/></svg>
       Log Equipment
     </button>
   </div>
@@ -170,9 +206,9 @@
 
 <main>
   <div class="stats-bar" id="statsBar">
-    <div class="stat-card"><div class="stat-label">Total Tracked</div><div class="stat-value">—</div></div>
-    <div class="stat-card success"><div class="stat-label">Active Leases</div><div class="stat-value">—</div></div>
-    <div class="stat-card amber"><div class="stat-label">Expiring ≤90 Days</div><div class="stat-value">—</div></div>
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">—</div></div>
+    <div class="stat-card success"><div class="stat-label">Active</div><div class="stat-value">—</div></div>
+    <div class="stat-card amber"><div class="stat-label">Expiring</div><div class="stat-value">—</div></div>
     <div class="stat-card danger"><div class="stat-label">Expired</div><div class="stat-value">—</div></div>
   </div>
 
@@ -181,103 +217,183 @@
       <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
       <input type="text" class="search-input" id="searchInput" placeholder="Search customer, make, model..." oninput="renderAll()">
     </div>
-    <select id="filterLease" onchange="renderAll()" style="width:auto;min-width:150px;">
-      <option value="">All Lease Status</option>
-      <option value="active">Active</option>
-      <option value="expiring">Expiring Soon</option>
-      <option value="expired">Expired</option>
+    <select id="filterType" onchange="renderAll()" style="width:auto;min-width:130px;">
+      <option value="">All Types</option>
+      <option>Copier / MFP</option>
+      <option>Printer</option>
+      <option>Postage Meter</option>
+      <option>Parcel Locker</option>
+      <option>Folder / Inserter</option>
+      <option>Finisher</option>
+      <option>Other</option>
     </select>
-    <select id="sortBy" onchange="renderAll()" style="width:auto;min-width:150px;">
-      <option value="newest">Newest First</option>
-      <option value="oldest">Oldest First</option>
-      <option value="customer">Customer A–Z</option>
-      <option value="expiring">Lease Expiring</option>
+    <select id="filterLease" onchange="renderAll()" style="width:auto;min-width:120px;">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="expiring">Expiring</option>
+      <option value="expired">Expired</option>
     </select>
   </div>
 
   <div class="device-grid" id="deviceGrid">
-    <div class="empty-state" style="grid-column:1/-1;">
+    <div class="empty-state">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      <h3>Loading equipment data...</h3>
-      <p>Connecting to cloud database</p>
+      <h3>Connecting...</h3><p>Loading from cloud database</p>
     </div>
   </div>
 </main>
 
+<button class="fab" onclick="openAddModal()" aria-label="Log Equipment">+</button>
+
 <!-- ADD / EDIT MODAL -->
 <div class="modal-overlay hidden" id="formModal" onclick="handleOverlayClick(event)">
   <div class="modal">
+    <div class="modal-handle"></div>
     <div class="modal-header">
       <div class="modal-title" id="formModalTitle">Log Equipment</div>
       <button class="modal-close" onclick="closeFormModal()">✕</button>
     </div>
     <div class="modal-body">
+
       <div class="form-section">
-        <div class="section-title">📷 Device Photo</div>
-        <div class="photo-drop" id="photoDrop" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
-          <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhotoInput(event)">
-          <div id="photoDropContent">
-            <div class="photo-drop-icon">📷</div>
-            <p>Drag & drop or <strong>tap to capture / upload</strong></p>
-            <p style="margin-top:4px;font-size:12px;">JPG, PNG, HEIC supported</p>
+        <div class="section-title">Photo</div>
+        <div id="photoPickerArea" class="photo-btns">
+          <label class="photo-btn-label">
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handlePhotoInput(event)">
+            <span class="photo-btn-icon">📷</span>
+            <span class="photo-btn-text">Take Photo</span>
+            <span class="photo-btn-sub">Use camera</span>
+          </label>
+          <label class="photo-btn-label">
+            <input type="file" id="galleryInput" accept="image/*" onchange="handlePhotoInput(event)">
+            <span class="photo-btn-icon">🖼</span>
+            <span class="photo-btn-text">Gallery</span>
+            <span class="photo-btn-sub">Choose existing</span>
+          </label>
+        </div>
+        <div id="photoPreviewWrap" class="photo-preview-wrap" style="display:none;">
+          <img id="photoPreview" src="" alt="Equipment photo">
+          <button class="photo-remove" onclick="removePhoto()">✕</button>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">Equipment Info</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Equipment Type</label>
+            <select id="fType">
+              <option value="">Select type...</option>
+              <option>Copier / MFP</option>
+              <option>Printer</option>
+              <option>Postage Meter</option>
+              <option>Parcel Locker</option>
+              <option>Folder / Inserter</option>
+              <option>Finisher</option>
+              <option>Other</option>
+            </select>
           </div>
-          <div id="photoPreviewWrap" class="photo-preview-wrap" style="display:none;">
-            <img id="photoPreview" src="" alt="Device photo">
-            <button class="photo-remove" onclick="removePhoto(event)">✕</button>
+        </div>
+        <div class="form-row cols2">
+          <div class="form-group">
+            <label>Manufacturer</label>
+            <input type="text" id="fMake" placeholder="e.g. Ricoh, Pitney Bowes">
+          </div>
+          <div class="form-group">
+            <label>Model</label>
+            <input type="text" id="fModel" placeholder="Model number">
           </div>
         </div>
-        <div class="upload-progress" id="uploadProgress">
-          <div class="upload-progress-bar" id="uploadProgressBar"></div>
+        <div class="form-row cols2">
+          <div class="form-group">
+            <label>Serial Number</label>
+            <input type="text" id="fSerial" placeholder="S/N">
+          </div>
+          <div class="form-group">
+            <label>Install Date</label>
+            <input type="date" id="fInstallDate">
+          </div>
+        </div>
+        <div class="form-row cols2">
+          <div class="form-group">
+            <label>Meter / Counter Read</label>
+            <input type="number" id="fMeter" placeholder="e.g. 124500" min="0">
+          </div>
+          <div class="form-group">
+            <label>Read Date</label>
+            <input type="date" id="fMeterDate">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="fNotes" placeholder="Condition, accessories, observations..."></textarea>
+          </div>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="section-title">🖨️ Device Info</div>
-        <div class="form-row cols2">
-          <div class="form-group"><label>Manufacturer / Make</label><input type="text" id="fMake" placeholder="e.g. Ricoh, Xerox, Konica"></div>
-          <div class="form-group"><label>Model</label><input type="text" id="fModel" placeholder="e.g. IM C4500"></div>
+        <div class="section-title">Customer Info</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Customer / Account Name</label>
+            <input type="text" id="fCustomer" placeholder="Business name">
+          </div>
         </div>
         <div class="form-row cols2">
-          <div class="form-group"><label>Serial Number</label><input type="text" id="fSerial" placeholder="S/N"></div>
-          <div class="form-group"><label>Install / Manufacture Date</label><input type="date" id="fInstallDate"></div>
+          <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" id="fContact" placeholder="Primary contact">
+          </div>
+          <div class="form-group">
+            <label>Phone / Email</label>
+            <input type="text" id="fPhone" placeholder="Contact info">
+          </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Notes</label><textarea id="fNotes" placeholder="Condition, accessories, meter reads, etc."></textarea></div>
+          <div class="form-group">
+            <label>Site Address</label>
+            <input type="text" id="fAddress" placeholder="Address">
+          </div>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="section-title">🏢 Customer Info</div>
-        <div class="form-row">
-          <div class="form-group"><label>Customer / Account Name</label><input type="text" id="fCustomer" placeholder="Business name"></div>
+        <div class="section-title">Lease / Contract Info</div>
+        <div class="form-row cols2">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="fLeaseStart">
+          </div>
+          <div class="form-group">
+            <label>End Date</label>
+            <input type="date" id="fLeaseEnd">
+          </div>
         </div>
         <div class="form-row cols2">
-          <div class="form-group"><label>Contact Name</label><input type="text" id="fContact" placeholder="Primary contact"></div>
-          <div class="form-group"><label>Phone / Email</label><input type="text" id="fPhone" placeholder="Contact info"></div>
+          <div class="form-group">
+            <label>Monthly Payment ($)</label>
+            <input type="number" id="fMonthly" placeholder="0.00" step="0.01" min="0">
+          </div>
+          <div class="form-group">
+            <label>Lease Company</label>
+            <input type="text" id="fLeaseCompany" placeholder="e.g. GreatAmerica">
+          </div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Address / Location</label><input type="text" id="fAddress" placeholder="Site address"></div>
+          <div class="form-group">
+            <label>Contract / Lease #</label>
+            <input type="text" id="fLeaseNum" placeholder="Contract ID">
+          </div>
         </div>
       </div>
 
-      <div class="form-section">
-        <div class="section-title">📋 Lease Info</div>
-        <div class="form-row cols2">
-          <div class="form-group"><label>Lease Start Date</label><input type="date" id="fLeaseStart"></div>
-          <div class="form-group"><label>Lease End Date</label><input type="date" id="fLeaseEnd"></div>
-        </div>
-        <div class="form-row cols3">
-          <div class="form-group"><label>Monthly Payment ($)</label><input type="number" id="fMonthly" placeholder="0.00" step="0.01" min="0"></div>
-          <div class="form-group"><label>Lease Company</label><input type="text" id="fLeaseCompany" placeholder="e.g. GreatAmerica"></div>
-          <div class="form-group"><label>Lease #</label><input type="text" id="fLeaseNum" placeholder="Lease ID"></div>
-        </div>
-      </div>
     </div>
     <div class="modal-footer">
-      <div><button class="btn btn-danger btn-sm" id="deleteBtn" onclick="deleteDevice()" style="display:none;">Delete Record</button></div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-ghost" onclick="closeFormModal()">Cancel</button>
-        <button class="btn btn-primary" id="saveBtn" onclick="saveDevice()">Save Record</button>
+      <button class="btn btn-danger btn-sm" id="deleteBtn" onclick="deleteDevice()" style="display:none;">Delete</button>
+      <div style="display:flex;gap:8px;margin-left:auto;">
+        <button class="btn btn-ghost btn-sm" onclick="closeFormModal()">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="saveBtn" onclick="saveDevice()">Save</button>
       </div>
     </div>
   </div>
@@ -286,16 +402,17 @@
 <!-- DETAIL MODAL -->
 <div class="modal-overlay hidden" id="detailModal" onclick="handleDetailOverlay(event)">
   <div class="modal">
+    <div class="modal-handle"></div>
     <div class="modal-header">
-      <div class="modal-title" id="detailTitle">Equipment Detail</div>
+      <div class="modal-title" id="detailTitle">Detail</div>
       <button class="modal-close" onclick="closeDetailModal()">✕</button>
     </div>
-    <div id="detailContent"></div>
+    <div id="detailContent" style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;"></div>
     <div class="modal-footer">
       <div></div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-ghost" onclick="closeDetailModal()">Close</button>
-        <button class="btn btn-primary" id="detailEditBtn" onclick="editFromDetail()">Edit</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost btn-sm" onclick="closeDetailModal()">Close</button>
+        <button class="btn btn-primary btn-sm" onclick="editFromDetail()">Edit</button>
       </div>
     </div>
   </div>
@@ -303,9 +420,6 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBhgeKTEsSMQyXEKGvZ2iMO8yfXTHpLhZo",
@@ -317,132 +431,111 @@
     measurementId: "G-L1Z1PNMPJ1"
   };
 </script>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
-// Init Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// State
-let devices = [];
-let editingId = null;
-let detailId = null;
-let photoFile = null;        // new File to compress + save
-let currentPhotoURL = null;  // existing base64 string (when editing)
+let devices = [], editingId = null, detailId = null;
+let photoFile = null, currentPhotoURL = null;
 
-// ── SYNC STATUS ──────────────────────────────────────────
-function setSyncStatus(status) {
-  const dot = document.getElementById('syncDot');
-  const lbl = document.getElementById('syncLabel');
-  dot.className = 'sync-dot ' + status;
-  lbl.textContent = status === 'connected' ? 'Live' : status === 'connecting' ? 'Connecting...' : 'Offline';
+// ── SYNC ─────────────────────────────────────────────────
+function setSyncStatus(s) {
+  document.getElementById('syncDot').className = 'sync-dot ' + s;
+  document.getElementById('syncLabel').textContent = { connected: 'Live', connecting: 'Connecting', error: 'Offline' }[s] || s;
 }
 
-// ── REAL-TIME LISTENER ───────────────────────────────────
 async function setupListener() {
   setSyncStatus('connecting');
-  try {
-    await db.enablePersistence({ synchronizeTabs: true });
-  } catch (err) {
-    // failed-precondition = multiple tabs open, unimplemented = browser doesn't support it
-    // Either way, just continue without persistence
-    console.warn('Offline cache skipped:', err.code);
-  }
+  try { await db.enablePersistence({ synchronizeTabs: true }); } catch (e) { console.warn('Persistence:', e.code); }
   db.collection('devices').onSnapshot(
-    snapshot => {
-      devices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setSyncStatus('connected');
-      renderAll();
-    },
+    snap => { devices = snap.docs.map(d => ({ id: d.id, ...d.data() })); setSyncStatus('connected'); renderAll(); },
     err => {
       setSyncStatus('error');
-      console.error('Firestore error:', err.code, err.message);
-      if (err.code === 'permission-denied') {
-        showToast('Permission denied — update your Firestore rules', true);
-      } else if (err.code === 'unavailable') {
-        showToast('Firestore unavailable — check your network', true);
-      } else {
-        showToast(`DB error: ${err.code}`, true);
-      }
+      showToast(err.code === 'permission-denied' ? 'Permission denied — check Firestore rules' : `Error: ${err.code}`, true);
+      console.error(err);
     }
   );
 }
 
 // ── HELPERS ──────────────────────────────────────────────
-function getLeaseStatus(end) {
+function leaseStatus(end) {
   if (!end) return 'unknown';
-  const days = Math.floor((new Date(end) - new Date()) / 86400000);
-  if (days < 0) return 'expired';
-  if (days <= 90) return 'expiring';
-  return 'active';
+  const d = Math.floor((new Date(end) - new Date()) / 86400000);
+  return d < 0 ? 'expired' : d <= 90 ? 'expiring' : 'active';
 }
-function getLeaseLabel(s) {
-  if (s === 'active')   return ['badge-active',   'ACTIVE'];
-  if (s === 'expiring') return ['badge-expiring',  'EXPIRING'];
-  if (s === 'expired')  return ['badge-expired',   'EXPIRED'];
-  return ['badge-unknown', 'NO LEASE'];
+function leaseBadge(s) {
+  return { active: ['badge-active','ACTIVE'], expiring: ['badge-expiring','EXPIRING'], expired: ['badge-expired','EXPIRED'], unknown: ['badge-unknown','—'] }[s];
 }
+function daysLeft(end) { return end ? Math.floor((new Date(end) - new Date()) / 86400000) : null; }
 function calcAge(d) {
   if (!d) return '—';
   const m = (new Date().getFullYear() - new Date(d).getFullYear()) * 12 + (new Date().getMonth() - new Date(d).getMonth());
   return m < 12 ? m + ' mo old' : (m / 12).toFixed(1) + ' yrs old';
 }
-function daysLeft(end) { return end ? Math.floor((new Date(end) - new Date()) / 86400000) : null; }
 function fmtDate(d) { if (!d) return '—'; const [y, m, day] = d.split('-'); return `${m}/${day}/${y}`; }
-function fmtMoney(v) { if (!v) return '—'; return '$' + parseFloat(v).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function fmtMoney(v) { return v ? '$' + parseFloat(v).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '—'; }
+function fmtMeter(v) { return v ? parseInt(v).toLocaleString() : '—'; }
 
 // ── RENDER ───────────────────────────────────────────────
 function renderStats() {
-  const t = devices.length, a = devices.filter(d => getLeaseStatus(d.leaseEnd) === 'active').length,
-        e = devices.filter(d => getLeaseStatus(d.leaseEnd) === 'expiring').length,
-        x = devices.filter(d => getLeaseStatus(d.leaseEnd) === 'expired').length;
+  const t = devices.length,
+    a = devices.filter(d => leaseStatus(d.leaseEnd) === 'active').length,
+    e = devices.filter(d => leaseStatus(d.leaseEnd) === 'expiring').length,
+    x = devices.filter(d => leaseStatus(d.leaseEnd) === 'expired').length;
   document.getElementById('statsBar').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Total Tracked</div><div class="stat-value">${t}</div></div>
-    <div class="stat-card success"><div class="stat-label">Active Leases</div><div class="stat-value">${a}</div></div>
-    <div class="stat-card amber"><div class="stat-label">Expiring ≤90 Days</div><div class="stat-value">${e}</div></div>
+    <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">${t}</div></div>
+    <div class="stat-card success"><div class="stat-label">Active</div><div class="stat-value">${a}</div></div>
+    <div class="stat-card amber"><div class="stat-label">Expiring</div><div class="stat-value">${e}</div></div>
     <div class="stat-card danger"><div class="stat-label">Expired</div><div class="stat-value">${x}</div></div>`;
 }
 
 function renderAll() {
   renderStats();
   const q = document.getElementById('searchInput').value.toLowerCase();
+  const ft = document.getElementById('filterType').value;
   const fl = document.getElementById('filterLease').value;
-  const sb = document.getElementById('sortBy').value;
   let list = devices.filter(d => {
-    if (q && ![d.make, d.model, d.customer, d.serial, d.address].join(' ').toLowerCase().includes(q)) return false;
-    if (fl && getLeaseStatus(d.leaseEnd) !== fl) return false;
+    if (q && ![d.make, d.model, d.customer, d.serial, d.address, d.equipmentType].join(' ').toLowerCase().includes(q)) return false;
+    if (ft && d.equipmentType !== ft) return false;
+    if (fl && leaseStatus(d.leaseEnd) !== fl) return false;
     return true;
-  });
-  if (sb === 'oldest')   list.sort((a, b) => a.created - b.created);
-  else if (sb === 'customer') list.sort((a, b) => (a.customer||'').localeCompare(b.customer||''));
-  else if (sb === 'expiring') list.sort((a, b) => (daysLeft(a.leaseEnd) ?? 99999) - (daysLeft(b.leaseEnd) ?? 99999));
+  }).sort((a, b) => b.created - a.created);
+
+  const camSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg>`;
   const grid = document.getElementById('deviceGrid');
-  if (list.length === 0) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-      <h3>${devices.length === 0 ? 'No equipment logged yet' : 'No results'}</h3>
-      <p>${devices.length === 0 ? 'Tap "Log Equipment" to add the first device.' : 'Try adjusting your filters.'}</p></div>`;
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state">${camSvg}<h3>${devices.length === 0 ? 'No equipment logged yet' : 'No results'}</h3><p>${devices.length === 0 ? 'Tap + to log the first device.' : 'Try adjusting your filters.'}</p></div>`;
     return;
   }
   grid.innerHTML = list.map(d => {
-    const s = getLeaseStatus(d.leaseEnd), [bc, bl] = getLeaseLabel(s);
-    const photo = d.photoURL ? `<img src="${d.photoURL}" style="width:100%;height:180px;object-fit:cover;" alt="Device">` :
-      `<div class="device-photo-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg><span>No photo</span></div>`;
+    const s = leaseStatus(d.leaseEnd), [bc, bl] = leaseBadge(s);
+    const photo = d.photoURL
+      ? `<img class="card-photo-img" src="${d.photoURL}" alt="Equipment">`
+      : `<div class="card-photo">${camSvg}<span>No photo</span></div>`;
     return `<div class="device-card" onclick="openDetail('${d.id}')">
       ${photo}
-      <div class="device-body">
-        <div class="device-header">
-          <div><div class="device-make">${d.make || 'Unknown'}</div><div class="device-model">${d.model || '—'}</div></div>
-          <span class="lease-badge ${bc}">${bl}</span>
+      <div class="card-body">
+        <div class="card-top">
+          <div>
+            <div class="card-make">${d.make || 'Unknown'}</div>
+            <div class="card-model">${d.model || '—'}</div>
+          </div>
+          <div class="card-badges">
+            ${d.equipmentType ? `<span class="card-type-badge">${d.equipmentType}</span>` : ''}
+            <span class="lease-badge ${bc}">${bl}</span>
+          </div>
         </div>
-        <div class="device-meta">
+        <div class="card-meta">
           <div><div class="meta-label">Customer</div><div class="meta-value">${d.customer || '—'}</div></div>
-          <div><div class="meta-label">Serial #</div><div class="meta-value" style="font-family:var(--font-mono);font-size:12px;">${d.serial || '—'}</div></div>
           <div><div class="meta-label">Lease Ends</div><div class="meta-value">${fmtDate(d.leaseEnd)}</div></div>
           <div><div class="meta-label">Monthly</div><div class="meta-value">${fmtMoney(d.monthly)}</div></div>
+          <div><div class="meta-label">Meter</div><div class="meta-value">${fmtMeter(d.meterRead)}</div></div>
         </div>
-        <div class="device-footer">
-          <span class="device-age">${calcAge(d.installDate)}</span>
+        <div class="card-footer">
+          <span class="card-age">${calcAge(d.installDate)}</span>
           <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openEdit('${d.id}')">Edit</button>
         </div>
       </div>
@@ -451,196 +544,158 @@ function renderAll() {
 }
 
 // ── FORM ─────────────────────────────────────────────────
+const FIELDS = ['fType','fMake','fModel','fSerial','fInstallDate','fMeter','fMeterDate','fNotes','fCustomer','fContact','fPhone','fAddress','fLeaseStart','fLeaseEnd','fMonthly','fLeaseCompany','fLeaseNum'];
+const FIELD_MAP = { fType: 'equipmentType', fMake: 'make', fModel: 'model', fSerial: 'serial', fInstallDate: 'installDate', fMeter: 'meterRead', fMeterDate: 'meterDate', fNotes: 'notes', fCustomer: 'customer', fContact: 'contact', fPhone: 'phone', fAddress: 'address', fLeaseStart: 'leaseStart', fLeaseEnd: 'leaseEnd', fMonthly: 'monthly', fLeaseCompany: 'leaseCompany', fLeaseNum: 'leaseNum' };
+
 function openAddModal() {
   editingId = null; photoFile = null; currentPhotoURL = null;
-  resetForm();
+  FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  resetPhotoUI();
   document.getElementById('formModalTitle').textContent = 'Log Equipment';
   document.getElementById('deleteBtn').style.display = 'none';
   document.getElementById('formModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
 }
 
 function openEdit(id) {
   const d = devices.find(x => x.id === id); if (!d) return;
   editingId = id; photoFile = null; currentPhotoURL = d.photoURL || null;
-  resetForm();
+  FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = d[FIELD_MAP[id]] || ''; });
+  resetPhotoUI();
+  if (d.photoURL) showPhotoPreview(d.photoURL);
   document.getElementById('formModalTitle').textContent = 'Edit Equipment';
   document.getElementById('deleteBtn').style.display = 'inline-flex';
-  document.getElementById('fMake').value = d.make || '';
-  document.getElementById('fModel').value = d.model || '';
-  document.getElementById('fSerial').value = d.serial || '';
-  document.getElementById('fInstallDate').value = d.installDate || '';
-  document.getElementById('fNotes').value = d.notes || '';
-  document.getElementById('fCustomer').value = d.customer || '';
-  document.getElementById('fContact').value = d.contact || '';
-  document.getElementById('fPhone').value = d.phone || '';
-  document.getElementById('fAddress').value = d.address || '';
-  document.getElementById('fLeaseStart').value = d.leaseStart || '';
-  document.getElementById('fLeaseEnd').value = d.leaseEnd || '';
-  document.getElementById('fMonthly').value = d.monthly || '';
-  document.getElementById('fLeaseCompany').value = d.leaseCompany || '';
-  document.getElementById('fLeaseNum').value = d.leaseNum || '';
-  if (d.photoURL) showPhotoPreview(d.photoURL);
   document.getElementById('formModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeFormModal() {
   document.getElementById('formModal').classList.add('hidden');
+  document.body.style.overflow = '';
   editingId = null; photoFile = null; currentPhotoURL = null;
-}
-
-function resetForm() {
-  ['fMake','fModel','fSerial','fInstallDate','fNotes','fCustomer','fContact','fPhone','fAddress','fLeaseStart','fLeaseEnd','fMonthly','fLeaseCompany','fLeaseNum']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  document.getElementById('photoPreviewWrap').style.display = 'none';
-  document.getElementById('photoDropContent').style.display = 'block';
-  document.getElementById('photoInput').value = '';
-  document.getElementById('uploadProgress').style.display = 'none';
 }
 
 async function saveDevice() {
   const make = document.getElementById('fMake').value.trim();
   const customer = document.getElementById('fCustomer').value.trim();
-  if (!make && !customer) { showToast('Enter at least a make or customer name', true); return; }
-
+  if (!make && !customer) { showToast('Enter a manufacturer or customer name', true); return; }
   const btn = document.getElementById('saveBtn');
   btn.disabled = true; btn.textContent = 'Saving...';
-
   try {
     const id = editingId || `dev_${Date.now()}`;
     let photoURL = currentPhotoURL;
-
-    if (photoFile) {
-      photoURL = await compressPhoto(photoFile);
-      photoFile = null;
-    }
-
-    const data = {
+    if (photoFile) { photoURL = await compressPhoto(photoFile); photoFile = null; }
+    await db.collection('devices').doc(id).set({
       created: editingId ? (devices.find(d => d.id === editingId)?.created || Date.now()) : Date.now(),
-      photoURL: photoURL || null, make, model: document.getElementById('fModel').value.trim(),
-      serial: document.getElementById('fSerial').value.trim(), installDate: document.getElementById('fInstallDate').value,
-      notes: document.getElementById('fNotes').value.trim(), customer,
-      contact: document.getElementById('fContact').value.trim(), phone: document.getElementById('fPhone').value.trim(),
-      address: document.getElementById('fAddress').value.trim(), leaseStart: document.getElementById('fLeaseStart').value,
-      leaseEnd: document.getElementById('fLeaseEnd').value, monthly: document.getElementById('fMonthly').value,
-      leaseCompany: document.getElementById('fLeaseCompany').value.trim(), leaseNum: document.getElementById('fLeaseNum').value.trim(),
-    };
-
-    await db.collection('devices').doc(id).set(data);
-    closeFormModal();
-    showToast(editingId ? 'Record updated' : 'Equipment logged');
-  } catch (err) {
-    showToast('Save failed: ' + err.message, true);
-    console.error(err);
-  } finally {
-    btn.disabled = false; btn.textContent = 'Save Record';
-  }
+      photoURL: photoURL || null,
+      equipmentType: document.getElementById('fType').value,
+      make, model: document.getElementById('fModel').value.trim(),
+      serial: document.getElementById('fSerial').value.trim(),
+      installDate: document.getElementById('fInstallDate').value,
+      meterRead: document.getElementById('fMeter').value,
+      meterDate: document.getElementById('fMeterDate').value,
+      notes: document.getElementById('fNotes').value.trim(),
+      customer, contact: document.getElementById('fContact').value.trim(),
+      phone: document.getElementById('fPhone').value.trim(),
+      address: document.getElementById('fAddress').value.trim(),
+      leaseStart: document.getElementById('fLeaseStart').value,
+      leaseEnd: document.getElementById('fLeaseEnd').value,
+      monthly: document.getElementById('fMonthly').value,
+      leaseCompany: document.getElementById('fLeaseCompany').value.trim(),
+      leaseNum: document.getElementById('fLeaseNum').value.trim(),
+    });
+    closeFormModal(); showToast(editingId ? 'Record updated' : 'Equipment logged');
+  } catch (err) { showToast('Save failed: ' + err.message, true); console.error(err); }
+  finally { btn.disabled = false; btn.textContent = 'Save'; }
 }
 
 async function deleteDevice() {
-  if (!editingId || !confirm('Delete this equipment record?')) return;
-  try {
-    await db.collection('devices').doc(editingId).delete();
-    closeFormModal();
-    showToast('Record deleted');
-  } catch (err) {
-    showToast('Delete failed: ' + err.message, true);
-  }
+  if (!editingId || !confirm('Delete this record?')) return;
+  try { await db.collection('devices').doc(editingId).delete(); closeFormModal(); showToast('Deleted'); }
+  catch (err) { showToast('Delete failed', true); }
 }
 
 // ── DETAIL ────────────────────────────────────────────────
 function openDetail(id) {
   detailId = id;
   const d = devices.find(x => x.id === id); if (!d) return;
-  const s = getLeaseStatus(d.leaseEnd), [bc, bl] = getLeaseLabel(s);
-  const dl = daysLeft(d.leaseEnd), dlStr = dl !== null ? (dl < 0 ? `${Math.abs(dl)} days ago` : `${dl} days remaining`) : '';
-  const photo = d.photoURL ? `<img class="detail-photo" src="${d.photoURL}" alt="Device">` :
-    `<div class="detail-photo-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg></div>`;
+  const s = leaseStatus(d.leaseEnd), [bc, bl] = leaseBadge(s);
+  const dl = daysLeft(d.leaseEnd), dlStr = dl !== null ? (dl < 0 ? `${Math.abs(dl)}d past expiry` : `${dl}d remaining`) : '';
+  const photo = d.photoURL
+    ? `<img class="detail-photo" src="${d.photoURL}" alt="Equipment">`
+    : `<div class="detail-photo-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg></div>`;
   document.getElementById('detailTitle').textContent = `${d.make || 'Device'} ${d.model || ''}`.trim();
   document.getElementById('detailContent').innerHTML = `${photo}
-    <div style="padding:16px 24px 0;display:flex;align-items:center;gap:10px;">
+    <div style="padding:14px 20px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      ${d.equipmentType ? `<span class="card-type-badge">${d.equipmentType}</span>` : ''}
       <span class="lease-badge ${bc}">${bl}</span>
-      ${dlStr ? `<span style="font-family:var(--font-mono);font-size:12px;color:var(--muted);">${dlStr}</span>` : ''}
+      ${dlStr ? `<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${dlStr}</span>` : ''}
     </div>
     <div class="detail-grid">
       <div><div class="detail-label">Customer</div><div class="detail-value">${d.customer||'—'}</div></div>
       <div><div class="detail-label">Contact</div><div class="detail-value">${d.contact||'—'}</div></div>
       <div><div class="detail-label">Phone / Email</div><div class="detail-value">${d.phone||'—'}</div></div>
       <div><div class="detail-label">Address</div><div class="detail-value">${d.address||'—'}</div></div>
-      <div><div class="detail-label">Make / Model</div><div class="detail-value">${d.make||'—'} ${d.model||''}</div></div>
-      <div><div class="detail-label">Serial</div><div class="detail-value" style="font-family:var(--font-mono);font-size:13px;">${d.serial||'—'}</div></div>
-      <div><div class="detail-label">Device Age</div><div class="detail-value">${calcAge(d.installDate)}</div></div>
+      <div><div class="detail-label">Manufacturer</div><div class="detail-value">${d.make||'—'}</div></div>
+      <div><div class="detail-label">Model</div><div class="detail-value">${d.model||'—'}</div></div>
+      <div><div class="detail-label">Serial #</div><div class="detail-value" style="font-family:var(--font-mono);font-size:12px;">${d.serial||'—'}</div></div>
+      <div><div class="detail-label">Install Date</div><div class="detail-value">${fmtDate(d.installDate)}</div></div>
+      <div><div class="detail-label">Age</div><div class="detail-value">${calcAge(d.installDate)}</div></div>
+      <div><div class="detail-label">Meter Read</div><div class="detail-value">${fmtMeter(d.meterRead)}${d.meterDate ? ` <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono);">as of ${fmtDate(d.meterDate)}</span>` : ''}</div></div>
       <div><div class="detail-label">Lease Period</div><div class="detail-value">${fmtDate(d.leaseStart)} → ${fmtDate(d.leaseEnd)}</div></div>
-      <div><div class="detail-label">Monthly Payment</div><div class="detail-value">${fmtMoney(d.monthly)}</div></div>
+      <div><div class="detail-label">Monthly</div><div class="detail-value">${fmtMoney(d.monthly)}</div></div>
       <div><div class="detail-label">Lease Company</div><div class="detail-value">${d.leaseCompany||'—'}</div></div>
-      <div><div class="detail-label">Lease Number</div><div class="detail-value" style="font-family:var(--font-mono);font-size:13px;">${d.leaseNum||'—'}</div></div>
-      <div><div class="detail-label">Logged</div><div class="detail-value">${new Date(d.created).toLocaleDateString()}</div></div>
+      <div><div class="detail-label">Contract #</div><div class="detail-value" style="font-family:var(--font-mono);font-size:12px;">${d.leaseNum||'—'}</div></div>
     </div>
-    ${d.notes ? `<div class="detail-notes"><div class="detail-label" style="margin-bottom:6px;">Notes</div><div style="font-size:14px;color:var(--text);line-height:1.6;">${d.notes}</div></div>` : ''}`;
+    ${d.notes ? `<div class="detail-notes"><div class="detail-label" style="margin-bottom:6px;">Notes</div><div style="font-size:14px;line-height:1.6;">${d.notes}</div></div>` : ''}`;
   document.getElementById('detailModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
 }
 
-function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); detailId = null; }
+function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); document.body.style.overflow = ''; detailId = null; }
 function editFromDetail() { const id = detailId; closeDetailModal(); openEdit(id); }
 function handleOverlayClick(e) { if (e.target.id === 'formModal') closeFormModal(); }
 function handleDetailOverlay(e) { if (e.target.id === 'detailModal') closeDetailModal(); }
 
-// ── PHOTO HANDLING ────────────────────────────────────────
-function handlePhotoInput(e) { const f = e.target.files[0]; if (f) setPhotoFile(f); }
-function setPhotoFile(f) {
-  photoFile = f;
-  const url = URL.createObjectURL(f);
-  showPhotoPreview(url);
-}
+// ── PHOTO ─────────────────────────────────────────────────
+function handlePhotoInput(e) { const f = e.target.files[0]; if (f) { photoFile = f; showPhotoPreview(URL.createObjectURL(f)); } }
 function showPhotoPreview(src) {
-  document.getElementById('photoDropContent').style.display = 'none';
+  document.getElementById('photoPickerArea').style.display = 'none';
   document.getElementById('photoPreview').src = src;
   document.getElementById('photoPreviewWrap').style.display = 'block';
 }
-function removePhoto(e) {
-  e.stopPropagation(); photoFile = null; currentPhotoURL = null;
-  document.getElementById('photoInput').value = '';
+function resetPhotoUI() {
+  document.getElementById('photoPickerArea').style.display = 'grid';
   document.getElementById('photoPreviewWrap').style.display = 'none';
-  document.getElementById('photoDropContent').style.display = 'block';
+  document.getElementById('photoPreview').src = '';
+  document.getElementById('cameraInput').value = '';
+  document.getElementById('galleryInput').value = '';
 }
-function dragOver(e) { e.preventDefault(); document.getElementById('photoDrop').classList.add('drag-over'); }
-function dragLeave() { document.getElementById('photoDrop').classList.remove('drag-over'); }
-function dropFile(e) {
-  e.preventDefault(); document.getElementById('photoDrop').classList.remove('drag-over');
-  const f = e.dataTransfer.files[0];
-  if (f && f.type.startsWith('image/')) setPhotoFile(f);
+function removePhoto() { photoFile = null; currentPhotoURL = null; resetPhotoUI(); }
+
+// ── COMPRESS ──────────────────────────────────────────────
+function compressPhoto(file, maxWidth = 900, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, maxWidth / img.width);
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject; img.src = url;
+  });
 }
 
 // ── TOAST ─────────────────────────────────────────────────
 function showToast(msg, isError = false) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = 'toast' + (isError ? ' error' : '');
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeFormModal(); closeDetailModal(); } });
-
-// ── PHOTO COMPRESSION ─────────────────────────────────────
-// Resizes to max 900px wide and compresses to JPEG ~60–80KB
-// so photos fit comfortably within Firestore's 1MB doc limit.
-function compressPhoto(file, maxWidth = 900, quality = 0.7) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const objectURL = URL.createObjectURL(file);
-    img.onload = () => {
-      const scale = Math.min(1, maxWidth / img.width);
-      const canvas = document.createElement('canvas');
-      canvas.width  = Math.round(img.width  * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(objectURL);
-      resolve(canvas.toDataURL('image/jpeg', quality));
-    };
-    img.onerror = reject;
-    img.src = objectURL;
-  });
-}
-
 setupListener();
 </script>
 </body>
