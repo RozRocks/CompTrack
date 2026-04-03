@@ -331,7 +331,9 @@ function setSyncStatus(status) {
 // ── REAL-TIME LISTENER ───────────────────────────────────
 function setupListener() {
   setSyncStatus('connecting');
-  db.collection('devices').orderBy('created', 'desc').onSnapshot(
+  db.enablePersistence({ synchronizeTabs: true })
+    .catch(err => console.warn('Offline cache unavailable:', err.code));
+  db.collection('devices').onSnapshot(
     snapshot => {
       devices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setSyncStatus('connected');
