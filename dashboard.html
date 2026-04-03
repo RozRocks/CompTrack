@@ -270,7 +270,9 @@ function setSyncStatus(s) {
 // ── FIRESTORE LISTENER ───────────────────────────────────
 function setupListener() {
   setSyncStatus('connecting');
-  db.collection('devices').orderBy('created', 'desc').onSnapshot(snapshot => {
+  db.enablePersistence({ synchronizeTabs: true })
+    .catch(err => console.warn('Offline cache unavailable:', err.code));
+  db.collection('devices').onSnapshot(snapshot => {
     allDevices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     setSyncStatus('connected');
     populateMakeFilter();
