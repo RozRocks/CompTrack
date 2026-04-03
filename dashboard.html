@@ -3,233 +3,269 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CompTrack — Sales Dashboard</title>
+<title>MBM LeadTool — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #0b0e18; --surface: #141720; --surface2: #1c2030; --surface3: #242840;
+    --bg: #090c18; --surface: #0e1525; --surface2: #141d35; --surface3: #1a2540;
     --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
-    --amber: #f59e0b; --amber-dim: rgba(245,158,11,0.12); --amber-border: rgba(245,158,11,0.3);
-    --teal: #14b8a6; --teal-dim: rgba(20,184,166,0.12);
-    --text: #e8eaf0; --muted: #6b7394; --muted2: #4a5070;
+    --blue: #2563eb; --blue-hover: #1d4ed8; --blue-dim: rgba(37,99,235,0.12); --blue-border: rgba(37,99,235,0.35);
+    --text: #e8eaf0; --muted: #6b7394; --muted2: #3d4566;
     --danger: #ef4444; --danger-dim: rgba(239,68,68,0.15);
     --success: #22c55e; --success-dim: rgba(34,197,94,0.15);
     --warn: #f97316; --warn-dim: rgba(249,115,22,0.15);
+    --hot: #ef4444; --hot-dim: rgba(239,68,68,0.15);
+    --warm: #f97316; --warm-dim: rgba(249,115,22,0.15);
+    --cold: #2563eb; --cold-dim: rgba(37,99,235,0.12);
     --radius: 12px;
-    --font-head: 'Rajdhani', sans-serif;
-    --font-mono: 'IBM Plex Mono', monospace;
-    --font-body: 'Inter', sans-serif;
+    --font-head: 'Rajdhani', sans-serif; --font-mono: 'IBM Plex Mono', monospace; --font-body: 'Inter', sans-serif;
   }
-  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; font-size: 14px; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; font-size: 14px; overflow: hidden; }
 
-  /* ── HEADER ── */
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 28px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
-  .logo { font-family: var(--font-head); font-size: 20px; font-weight: 700; letter-spacing: 2px; color: var(--amber); display: flex; align-items: center; gap: 9px; }
-  .logo-icon { width: 26px; height: 26px; background: var(--amber); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
-  .logo-icon svg { width: 14px; height: 14px; fill: #0f1117; }
-  .logo-sub { font-size: 11px; font-weight: 500; letter-spacing: 3px; color: var(--muted); margin-left: 2px; font-family: var(--font-mono); }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 54px; flex-shrink: 0; }
+  .logo { font-family: var(--font-head); font-size: 18px; font-weight: 700; letter-spacing: 1.5px; color: var(--blue); display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 26px; height: 26px; background: var(--blue); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 14px; height: 14px; fill: #fff; }
+  .logo-sub { font-family: var(--font-mono); font-size: 10px; font-weight: 500; letter-spacing: 3px; color: var(--muted); margin-left: 2px; }
   .header-right { display: flex; align-items: center; gap: 10px; }
-  .sync-pill { display: flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 4px 10px; }
-  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
-  .sync-dot.connected { background: var(--success); box-shadow: 0 0 4px rgba(34,197,94,0.5); }
-  .sync-dot.connecting { background: var(--amber); }
-  .sync-dot.error { background: var(--danger); }
-  .sync-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
-  .btn { font-family: var(--font-head); font-size: 14px; font-weight: 600; padding: 7px 16px; border-radius: 7px; border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .user-pill { font-family: var(--font-mono); font-size: 11px; color: var(--muted); background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 4px 10px; }
+  .sync-pill { display: flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+  .sync-dot.connected { background: var(--success); }
+  .btn { font-family: var(--font-head); font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 7px; border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px; }
   .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
   .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { background: var(--blue-hover); }
   .btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
   .btn-danger:hover { background: rgba(239,68,68,0.25); }
-  .nav-link { font-family: var(--font-head); font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 6px 11px; border-radius: 7px; border: 1px solid var(--border2); transition: all 0.15s; }
+  .btn-logout { background: none; border: none; color: var(--muted); cursor: pointer; font-family: var(--font-mono); font-size: 11px; }
+  .btn-logout:hover { color: var(--text); }
+  .nav-link { font-family: var(--font-head); font-size: 12px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border2); }
   .nav-link:hover { color: var(--text); background: var(--surface2); }
 
-  /* ── LAYOUT ── */
-  .page { display: grid; grid-template-columns: 1fr 280px; grid-template-rows: auto 1fr; gap: 0; height: calc(100vh - 56px); }
-  .main-col { overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
-  .side-col { border-left: 1px solid var(--border); overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .layout { display: flex; height: calc(100vh - 54px); overflow: hidden; }
+  .main-col { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  .side-col { width: 300px; flex-shrink: 0; border-left: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
 
-  /* ── STATS ── */
+  .tabs { display: flex; gap: 2px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 3px; flex-shrink: 0; }
+  .tab { flex: 1; padding: 7px 14px; border-radius: 7px; border: none; background: none; color: var(--muted); font-family: var(--font-head); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .tab.active { background: var(--blue); color: #fff; }
+
   .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex-shrink: 0; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
   .stat-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-  .stat-val { font-family: var(--font-head); font-size: 28px; font-weight: 700; line-height: 1; color: var(--text); }
-  .stat-sub { font-family: var(--font-mono); font-size: 10px; color: var(--muted2); margin-top: 4px; }
-  .stat-card.amber .stat-val { color: var(--amber); }
-  .stat-card.teal .stat-val { color: var(--teal); }
+  .stat-val { font-family: var(--font-head); font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-card.blue .stat-val { color: var(--blue); }
   .stat-card.success .stat-val { color: var(--success); }
+  .stat-card.hot .stat-val { color: var(--hot); }
 
-  /* ── TABLE SECTION ── */
-  .table-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; flex: 1; min-height: 0; }
-  .table-toolbar { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
-  .table-toolbar-title { font-family: var(--font-head); font-size: 16px; font-weight: 600; margin-right: 4px; }
+  .table-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .table-toolbar { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
+  .table-toolbar-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; }
   .row-count { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
-  .search-wrap { position: relative; flex: 1; min-width: 160px; }
-  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: var(--muted); pointer-events: none; }
-  input[type="text"], select { background: var(--surface2); border: 1px solid var(--border2); border-radius: 7px; color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 7px 10px; outline: none; }
-  input[type="text"] { padding-left: 30px; }
-  input[type="text"]:focus, select:focus { border-color: var(--amber); }
-  select { cursor: pointer; appearance: none; padding-right: 24px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7394' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+  .search-wrap { position: relative; flex: 1; min-width: 140px; }
+  .search-wrap svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; color: var(--muted); pointer-events: none; }
+  input[type="text"], select { background: var(--surface2); border: 1px solid var(--border2); border-radius: 7px; color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 6px 10px; outline: none; }
+  input[type="text"] { padding-left: 28px; }
+  input[type="text"]:focus, select:focus { border-color: var(--blue); }
+  select { cursor: pointer; appearance: none; padding-right: 22px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7394' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; }
 
   .table-wrap { overflow: auto; flex: 1; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
   thead { position: sticky; top: 0; z-index: 2; }
-  thead th { background: var(--surface2); font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border2); cursor: pointer; user-select: none; white-space: nowrap; }
+  thead th { background: var(--surface2); font-family: var(--font-mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border2); cursor: pointer; user-select: none; white-space: nowrap; }
   thead th:hover { color: var(--text); }
-  thead th.sorted { color: var(--amber); }
-  .sort-icon { margin-left: 3px; opacity: 0.5; font-size: 10px; }
+  thead th.sorted { color: var(--blue); }
+  .sort-icon { margin-left: 3px; opacity: 0.5; }
   thead th.sorted .sort-icon { opacity: 1; }
   tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; cursor: pointer; }
   tbody tr:last-child { border-bottom: none; }
   tbody tr:hover { background: var(--surface2); }
-  tbody tr.selected { background: var(--amber-dim); border-left: 2px solid var(--amber); }
-  tbody td { padding: 10px 14px; vertical-align: middle; }
-  .td-date { font-family: var(--font-mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
-  .td-customer { font-weight: 500; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .td-type { font-family: var(--font-mono); font-size: 10px; color: var(--muted); background: var(--surface3); border-radius: 10px; padding: 2px 7px; white-space: nowrap; }
-  .td-make { font-family: var(--font-head); font-size: 14px; font-weight: 600; }
-  .td-model { font-family: var(--font-mono); font-size: 10px; color: var(--amber); }
-  .td-serial { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
-  .td-money { font-family: var(--font-mono); font-size: 12px; }
-  .lease-badge { font-family: var(--font-mono); font-size: 10px; padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
-  .badge-active { background: var(--success-dim); color: var(--success); }
-  .badge-expiring { background: var(--warn-dim); color: var(--warn); }
-  .badge-expired { background: var(--danger-dim); color: var(--danger); }
-  .badge-unknown { background: var(--surface2); color: var(--muted); }
-  .del-btn { background: none; border: none; color: var(--muted2); cursor: pointer; padding: 4px 6px; border-radius: 5px; font-size: 14px; line-height: 1; transition: all 0.15s; }
+  tbody tr.selected { background: var(--blue-dim); border-left: 2px solid var(--blue); }
+  tbody td { padding: 9px 12px; vertical-align: middle; }
+  .td-date { font-family: var(--font-mono); font-size: 10px; color: var(--muted); white-space: nowrap; }
+  .td-customer { font-weight: 500; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .priority-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .dot-Hot { background: var(--hot); }
+  .dot-Warm { background: var(--warm); }
+  .dot-Cold { background: var(--cold); }
+  .status-sel { background: var(--surface2); border: 1px solid var(--border2); color: var(--text); font-family: var(--font-mono); font-size: 10px; border-radius: 6px; padding: 3px 6px; cursor: pointer; outline: none; }
+  .status-sel.New { border-color: var(--blue); color: var(--blue); }
+  .status-sel.In-Progress { border-color: var(--warm); color: var(--warn); }
+  .status-sel.Won { border-color: var(--success); color: var(--success); }
+  .status-sel.Lost { border-color: var(--muted2); color: var(--muted); }
+  .del-btn { background: none; border: none; color: var(--muted2); cursor: pointer; padding: 3px 6px; border-radius: 5px; font-size: 13px; }
   .del-btn:hover { color: var(--danger); background: var(--danger-dim); }
-  .empty-row td { text-align: center; padding: 60px; color: var(--muted); }
-  .empty-row h3 { font-family: var(--font-head); font-size: 17px; color: var(--text); margin-bottom: 4px; }
+  .empty-row td { text-align: center; padding: 50px; color: var(--muted); }
+  .empty-row h3 { font-family: var(--font-head); font-size: 16px; color: var(--text); margin-bottom: 4px; }
 
-  /* ── SIDE PANEL ── */
-  .side-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .side-section-title { font-family: var(--font-head); font-size: 13px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  .side-section { border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .side-section:last-child { border-bottom: none; flex: 1; overflow-y: auto; }
+  .side-section-title { font-family: var(--font-head); font-size: 11px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: 1.5px; padding: 12px 16px 8px; }
 
-  /* CHART */
-  .chart-wrap { padding: 14px; }
-  canvas { max-height: 180px; }
-
-  /* DETAIL PANEL */
-  .detail-panel { flex: 1; }
-  .detail-empty { padding: 20px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; }
-  .detail-empty svg { width: 32px; height: 32px; opacity: 0.2; margin-bottom: 10px; }
-  .detail-photo { width: 100%; max-height: 180px; object-fit: cover; display: block; }
-  .detail-photo-ph { width: 100%; height: 120px; background: var(--surface2); display: flex; align-items: center; justify-content: center; }
-  .detail-photo-ph svg { width: 36px; height: 36px; opacity: 0.2; }
-  .detail-body { padding: 14px; }
-  .detail-name { font-family: var(--font-head); font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-  .detail-type { font-family: var(--font-mono); font-size: 10px; color: var(--muted); background: var(--surface2); border-radius: 10px; padding: 2px 8px; display: inline-block; margin-bottom: 12px; }
-  .detail-fields { display: flex; flex-direction: column; gap: 10px; }
+  .detail-empty { padding: 24px 16px; text-align: center; color: var(--muted); font-size: 12px; }
+  .detail-photo { width: 100%; max-height: 160px; object-fit: cover; display: block; }
+  .detail-photo-ph { width: 100%; height: 100px; background: var(--surface2); display: flex; align-items: center; justify-content: center; }
+  .detail-photo-ph svg { width: 32px; height: 32px; opacity: 0.2; }
+  .detail-body { padding: 12px 16px; }
+  .detail-name { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .detail-fields { display: flex; flex-direction: column; gap: 9px; }
   .df-label { font-family: var(--font-mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px; }
-  .df-value { font-size: 13px; color: var(--text); font-weight: 500; word-break: break-word; }
+  .df-value { font-size: 12px; color: var(--text); font-weight: 500; word-break: break-word; line-height: 1.4; }
   .df-value.mono { font-family: var(--font-mono); font-size: 11px; }
-  .detail-divider { height: 1px; background: var(--border); margin: 12px 0; }
-  .detail-actions { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+  .detail-divider { height: 1px; background: var(--border); margin: 10px 0; }
+  .notes-area { background: var(--surface2); border: 1px solid var(--border2); border-radius: 7px; color: var(--text); font-family: var(--font-body); font-size: 12px; padding: 8px 10px; width: 100%; outline: none; resize: vertical; min-height: 70px; }
+  .notes-area:focus { border-color: var(--blue); }
+  .priority-badge { font-family: var(--font-mono); font-size: 10px; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+  .badge-Hot { background: var(--hot-dim); color: var(--hot); }
+  .badge-Warm { background: var(--warm-dim); color: var(--warn); }
+  .badge-Cold { background: var(--cold-dim); color: var(--cold); }
+  .contact-block { background: var(--surface2); border-radius: 7px; padding: 8px 10px; margin-bottom: 6px; }
+  .contact-name { font-weight: 600; font-size: 12px; }
+  .contact-detail { font-size: 11px; color: var(--muted); }
+  .detail-actions { padding: 10px 16px 14px; display: flex; gap: 8px; }
 
-  /* TOAST */
-  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface2); border: 1px solid var(--amber-border); color: var(--amber); font-family: var(--font-mono); font-size: 12px; padding: 10px 16px; border-radius: 10px; z-index: 999; opacity: 0; transform: translateY(6px); transition: all 0.2s; pointer-events: none; }
+  .report-section { padding: 14px 16px; }
+  .month-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .month-sel { background: var(--surface2); border: 1px solid var(--border2); border-radius: 7px; color: var(--text); font-family: var(--font-mono); font-size: 11px; padding: 5px 8px; outline: none; flex: 1; }
+  .month-sel:focus { border-color: var(--blue); }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface2); border: 1px solid var(--blue-border); color: var(--blue); font-family: var(--font-mono); font-size: 12px; padding: 10px 16px; border-radius: 10px; z-index: 999; opacity: 0; transform: translateY(6px); transition: all 0.2s; pointer-events: none; }
   .toast.show { opacity: 1; transform: translateY(0); }
   .toast.error { border-color: rgba(239,68,68,0.4); color: var(--danger); }
+  .toast.success { border-color: rgba(34,197,94,0.4); color: var(--success); }
 
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L13 10.414V17a1 1 0 01-1.447.894l-4-2A1 1 0 017 15V10.414L3.293 6.707A1 1 0 013 6V4z"/></svg>
-    </div>
-    CompTrack <span class="logo-sub">SALES</span>
+    <div class="logo-icon"><svg viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L13 10.414V17a1 1 0 01-1.447.894l-4-2A1 1 0 017 15V10.414L3.293 6.707A1 1 0 013 6V4z"/></svg></div>
+    MBM LeadTool <span class="logo-sub">SALES</span>
   </div>
   <div class="header-right">
-    <div class="sync-pill">
-      <div class="sync-dot" id="syncDot"></div>
-      <span class="sync-label" id="syncLabel">Connecting</span>
-    </div>
-    <button class="btn btn-ghost" onclick="exportCSV()">
-      <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/></svg>
-      Export CSV
-    </button>
+    <div class="sync-pill"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">Connecting</span></div>
+    <div class="user-pill" id="userLabel">...</div>
     <a href="index.html" class="nav-link">← Field App</a>
+    <button class="btn-logout" onclick="logout()">Sign out</button>
   </div>
 </header>
 
-<div class="page">
-  <!-- MAIN COLUMN -->
+<div class="layout">
   <div class="main-col">
-    <div class="stats-row" id="statsRow">
-      <div class="stat-card"><div class="stat-label">Total Records</div><div class="stat-val">—</div></div>
-      <div class="stat-card success"><div class="stat-label">This Month</div><div class="stat-val">—</div></div>
-      <div class="stat-card amber"><div class="stat-label">Makes Tracked</div><div class="stat-val">—</div></div>
-      <div class="stat-card teal"><div class="stat-label">Monthly Value</div><div class="stat-val">—</div></div>
+
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div class="tabs" style="max-width:280px;">
+        <button class="tab active" id="tabLeads" onclick="switchTab('leads')">My Leads</button>
+        <button class="tab" id="tabEquip" onclick="switchTab('equip')">Equipment DB</button>
+      </div>
+      <span id="adminBadge" style="display:none;font-family:var(--font-mono);font-size:10px;color:var(--blue);background:var(--blue-dim);border:1px solid var(--blue-border);border-radius:20px;padding:3px 10px;">ADMIN VIEW</span>
+      <div id="adminFilter" style="display:none;"></div>
     </div>
 
-    <div class="table-section">
-      <div class="table-toolbar">
-        <span class="table-toolbar-title">Equipment Records</span>
-        <span class="row-count" id="rowCount"></span>
-        <div class="search-wrap">
-          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-          <input type="text" id="tableSearch" placeholder="Search anything..." oninput="renderTable()">
-        </div>
-        <select id="filterType" onchange="renderTable()" style="width:auto;">
-          <option value="">All Types</option>
-          <option>Copier / MFP</option>
-          <option>Printer</option>
-          <option>Postage Meter</option>
-          <option>Parcel Locker</option>
-          <option>Folder / Inserter</option>
-          <option>Finisher</option>
-          <option>Other</option>
-        </select>
-        <select id="filterMake" onchange="renderTable()" style="width:auto;"></select>
+    <!-- LEADS TAB -->
+    <div id="leadsTab">
+      <div class="stats-row" id="leadsStats">
+        <div class="stat-card blue"><div class="stat-label">Total Leads</div><div class="stat-val">—</div></div>
+        <div class="stat-card hot"><div class="stat-label">Hot</div><div class="stat-val">—</div></div>
+        <div class="stat-card success"><div class="stat-label">Won</div><div class="stat-val">—</div></div>
+        <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-val">—</div></div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th onclick="setSort('created')" id="h-created">Date Seen <span class="sort-icon">↓</span></th>
-              <th onclick="setSort('customer')" id="h-customer">Customer <span class="sort-icon">↕</span></th>
-              <th onclick="setSort('equipmentType')" id="h-equipmentType">Type <span class="sort-icon">↕</span></th>
-              <th onclick="setSort('make')" id="h-make">Make / Model <span class="sort-icon">↕</span></th>
-              <th onclick="setSort('serial')" id="h-serial">Serial # <span class="sort-icon">↕</span></th>
-              <th onclick="setSort('meterRead')" id="h-meterRead">Meter <span class="sort-icon">↕</span></th>
-              <th onclick="setSort('leaseEnd')" id="h-leaseEnd">Lease End <span class="sort-icon">↕</span></th>
-              <th onclick="setSort('monthly')" id="h-monthly">Monthly <span class="sort-icon">↕</span></th>
+
+      <div class="table-section">
+        <div class="table-toolbar">
+          <span class="table-toolbar-title">Leads</span>
+          <span class="row-count" id="leadsCount"></span>
+          <div class="search-wrap">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+            <input type="text" id="leadsSearch" placeholder="Search leads..." oninput="renderLeads()">
+          </div>
+          <select id="leadsFilterStatus" onchange="renderLeads()" style="width:auto;">
+            <option value="">All Status</option><option>New</option><option>In Progress</option><option>Won</option><option>Lost</option>
+          </select>
+          <select id="leadsFilterPriority" onchange="renderLeads()" style="width:auto;">
+            <option value="">All Priority</option><option>Hot</option><option>Warm</option><option>Cold</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th onclick="setLeadSort('createdAt')" id="lh-createdAt">Date <span class="sort-icon">↓</span></th>
+              <th onclick="setLeadSort('businessName')" id="lh-businessName">Customer <span class="sort-icon">↕</span></th>
+              <th onclick="setLeadSort('priority')" id="lh-priority">Priority <span class="sort-icon">↕</span></th>
+              <th onclick="setLeadSort('submittedByName')" id="lh-submittedByName">Submitted By <span class="sort-icon">↕</span></th>
+              <th onclick="setLeadSort('interactionDate')" id="lh-interactionDate">Seen On <span class="sort-icon">↕</span></th>
+              <th onclick="setLeadSort('equipmentType')" id="lh-equipmentType">Equipment <span class="sort-icon">↕</span></th>
               <th>Status</th>
               <th></th>
-            </tr>
-          </thead>
-          <tbody id="deviceTable">
-            <tr class="empty-row"><td colspan="10"><h3>Connecting...</h3></td></tr>
-          </tbody>
-        </table>
+            </tr></thead>
+            <tbody id="leadsTable"><tr class="empty-row"><td colspan="8"><h3>Connecting...</h3></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQUIPMENT TAB -->
+    <div id="equipTab" style="display:none;">
+      <div class="stats-row" id="equipStats">
+        <div class="stat-card blue"><div class="stat-label">Total Equipment</div><div class="stat-val">—</div></div>
+        <div class="stat-card success"><div class="stat-label">Active Leases</div><div class="stat-val">—</div></div>
+        <div class="stat-card hot"><div class="stat-label">Expiring ≤90d</div><div class="stat-val">—</div></div>
+        <div class="stat-card"><div class="stat-label">Makes Tracked</div><div class="stat-val">—</div></div>
+      </div>
+      <div class="table-section">
+        <div class="table-toolbar">
+          <span class="table-toolbar-title">Equipment Records</span>
+          <span class="row-count" id="equipCount"></span>
+          <div class="search-wrap">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+            <input type="text" id="equipSearch" placeholder="Search..." oninput="renderEquip()">
+          </div>
+          <select id="equipFilterMake" onchange="renderEquip()" style="width:auto;"></select>
+          <button class="btn btn-ghost" onclick="exportEquipCSV()" style="font-size:11px;padding:5px 10px;">Export CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th onclick="setEquipSort('created')" id="eh-created">Date Seen <span class="sort-icon">↓</span></th>
+              <th onclick="setEquipSort('customer')" id="eh-customer">Customer <span class="sort-icon">↕</span></th>
+              <th onclick="setEquipSort('equipmentType')" id="eh-equipmentType">Type <span class="sort-icon">↕</span></th>
+              <th onclick="setEquipSort('make')" id="eh-make">Make / Model <span class="sort-icon">↕</span></th>
+              <th onclick="setEquipSort('serial')" id="eh-serial">Serial # <span class="sort-icon">↕</span></th>
+              <th onclick="setEquipSort('meterRead')" id="eh-meterRead">Meter <span class="sort-icon">↕</span></th>
+              <th onclick="setEquipSort('leaseEnd')" id="eh-leaseEnd">Lease End <span class="sort-icon">↕</span></th>
+              <th onclick="setEquipSort('monthly')" id="eh-monthly">Monthly <span class="sort-icon">↕</span></th>
+              <th></th>
+            </tr></thead>
+            <tbody id="equipTable"><tr class="empty-row"><td colspan="9"><h3>Connecting...</h3></td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- SIDE COLUMN -->
   <div class="side-col">
-    <!-- CHART -->
     <div class="side-section">
-      <div class="side-section-title">By Manufacturer</div>
-      <div class="chart-wrap">
-        <canvas id="makeChart"></canvas>
+      <div class="side-section-title">Record Detail</div>
+      <div id="detailContent">
+        <div class="detail-empty">Select a row to view details and update status.</div>
       </div>
     </div>
 
-    <!-- DETAIL PANEL -->
-    <div class="side-section detail-panel">
-      <div class="side-section-title">Record Detail</div>
-      <div id="detailContent">
-        <div class="detail-empty">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          <p>Select a row to view full record details</p>
+    <div class="side-section" id="reportSection">
+      <div class="side-section-title">Monthly Report</div>
+      <div class="report-section">
+        <div class="month-row">
+          <select class="month-sel" id="reportMonth"></select>
+          <button class="btn btn-primary" style="font-size:11px;padding:5px 10px;" onclick="exportReport()">Export</button>
         </div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);line-height:1.6;" id="reportPreview">Select month to preview</div>
       </div>
     </div>
   </div>
@@ -237,7 +273,6 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyBhgeKTEsSMQyXEKGvZ2iMO8yfXTHpLhZo",
@@ -250,273 +285,409 @@
   };
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const auth = firebase.auth();
+const db   = firebase.firestore();
 
-let allDevices = [];
-let selectedId = null;
-let sortCol = 'created', sortAsc = false;
-let makeChart = null;
+let currentUser = null;
+let allLeads = [], allDevices = [], allSalesReps = [];
+let selectedId = null, currentTab = 'leads';
+let leadSort = 'createdAt', leadSortAsc = false;
+let equipSort = 'created', equipSortAsc = false;
+let filterRepUid = null;
 
-Chart.defaults.color = '#6b7394';
-Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
-Chart.defaults.font.family = "'IBM Plex Mono', monospace";
-Chart.defaults.font.size = 10;
+// ── AUTH GUARD ────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  const doc = await db.collection('users').doc(user.uid).get();
+  if (!doc.exists || doc.data().isActive === false) { await auth.signOut(); window.location.href = 'login.html'; return; }
+  currentUser = { uid: user.uid, ...doc.data() };
+  if (currentUser.role !== 'sales' && currentUser.role !== 'admin') { window.location.href = 'index.html'; return; }
+  document.getElementById('userLabel').textContent = currentUser.name || currentUser.email;
+  if (currentUser.role === 'admin') setupAdminUI();
+  setupListeners();
+  populateMonthSelector();
+});
+
+async function logout() { await auth.signOut(); window.location.href = 'login.html'; }
+
+function setupAdminUI() {
+  document.getElementById('adminBadge').style.display = 'inline-block';
+  document.getElementById('adminFilter').style.display = 'block';
+  document.getElementById('adminFilter').innerHTML = `
+    <select id="repFilter" onchange="filterByRep(this.value)" style="background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--font-mono);font-size:11px;padding:5px 10px;outline:none;">
+      <option value="">All Reps</option>
+    </select>`;
+}
+
+async function setupListeners() {
+  try { await db.enablePersistence({ synchronizeTabs: true }); } catch(e) {}
+  const syncDot = document.getElementById('syncDot');
+
+  db.collection('leads').onSnapshot(snap => {
+    allLeads = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    syncDot.className = 'sync-dot connected';
+    document.getElementById('syncLabel').textContent = 'Live';
+    renderLeads();
+    updateReportPreview();
+  }, err => { syncDot.className = 'sync-dot'; document.getElementById('syncLabel').textContent = 'Offline'; });
+
+  db.collection('devices').onSnapshot(snap => {
+    allDevices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderEquip();
+    populateMakeFilter();
+  });
+
+  if (currentUser.role === 'admin') {
+    db.collection('users').where('role','==','sales').get().then(snap => {
+      allSalesReps = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+      const sel = document.getElementById('repFilter');
+      if (sel) sel.innerHTML = '<option value="">All Reps</option>' + allSalesReps.map(r => `<option value="${r.uid}">${r.name}</option>`).join('');
+    });
+  }
+}
+
+function filterByRep(uid) { filterRepUid = uid || null; renderLeads(); }
+
+// ── TAB SWITCH ────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('leadsTab').style.display = tab === 'leads' ? 'contents' : 'none';
+  document.getElementById('equipTab').style.display = tab === 'equip' ? 'contents' : 'none';
+  document.getElementById('tabLeads').className = `tab ${tab==='leads'?'active':''}`;
+  document.getElementById('tabEquip').className = `tab ${tab==='equip'?'active':''}`;
+  document.getElementById('reportSection').style.display = tab === 'leads' ? '' : 'none';
+  clearDetail();
+}
 
 // ── HELPERS ──────────────────────────────────────────────
+function fmtDate(d) { if (!d) return '—'; const [y,m,day] = d.split('-'); return `${m}/${day}/${y}`; }
+function fmtTs(ts) { if (!ts) return '—'; const d = new Date(ts); return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}); }
+function fmtMoney(v) { return v ? '$'+parseFloat(v).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',') : '—'; }
+function fmtMeter(v) { return v ? parseInt(v).toLocaleString() : '—'; }
 function leaseStatus(end) {
   if (!end) return 'unknown';
   const d = Math.floor((new Date(end) - new Date()) / 86400000);
   return d < 0 ? 'expired' : d <= 90 ? 'expiring' : 'active';
 }
-function leaseBadge(s) {
-  return { active: ['badge-active','ACTIVE'], expiring: ['badge-expiring','EXPIRING'], expired: ['badge-expired','EXPIRED'], unknown: ['badge-unknown','—'] }[s];
-}
-function fmtDate(d) { if (!d) return '—'; const [y, m, day] = d.split('-'); return `${m}/${day}/${y}`; }
-function fmtDateShort(ts) {
-  if (!ts) return '—';
-  const d = new Date(ts);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
-}
-function fmtMoney(v) { return v ? '$' + parseFloat(v).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') : '—'; }
-function fmtMeter(v) { return v ? parseInt(v).toLocaleString() : '—'; }
-function calcAge(d) {
-  if (!d) return '—';
-  const m = (new Date().getFullYear() - new Date(d).getFullYear()) * 12 + (new Date().getMonth() - new Date(d).getMonth());
-  return m < 12 ? m + 'mo' : (m / 12).toFixed(1) + 'yr';
-}
-function thisMonth(ts) {
-  const d = new Date(ts), n = new Date();
-  return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
-}
 
-// ── SYNC ─────────────────────────────────────────────────
-function setSyncStatus(s) {
-  document.getElementById('syncDot').className = 'sync-dot ' + s;
-  document.getElementById('syncLabel').textContent = { connected: 'Live', connecting: 'Connecting', error: 'Offline' }[s] || s;
-}
-
-async function setupListener() {
-  setSyncStatus('connecting');
-  try { await db.enablePersistence({ synchronizeTabs: true }); } catch(e) { console.warn('Persistence:', e.code); }
-  db.collection('devices').onSnapshot(snap => {
-    allDevices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    setSyncStatus('connected');
-    populateMakeFilter();
-    renderStats();
-    renderChart();
-    renderTable();
-    if (selectedId) renderDetail(selectedId);
-  }, err => {
-    setSyncStatus('error');
-    showToast(`Error: ${err.code}`, true);
-    console.error(err);
-  });
-}
-
-// ── STATS ─────────────────────────────────────────────────
-function renderStats() {
-  const total = allDevices.length;
-  const month = allDevices.filter(d => thisMonth(d.created)).length;
-  const makes = new Set(allDevices.map(d => d.make).filter(Boolean)).size;
-  const mv = allDevices.reduce((s, d) => s + (parseFloat(d.monthly) || 0), 0);
-  document.getElementById('statsRow').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Total Records</div><div class="stat-val">${total}</div><div class="stat-sub">all time</div></div>
-    <div class="stat-card success"><div class="stat-label">This Month</div><div class="stat-val">${month}</div><div class="stat-sub">logged by techs</div></div>
-    <div class="stat-card amber"><div class="stat-label">Makes Tracked</div><div class="stat-val">${makes}</div><div class="stat-sub">unique manufacturers</div></div>
-    <div class="stat-card teal"><div class="stat-label">Monthly Value</div><div class="stat-val">${mv > 0 ? '$' + Math.round(mv).toLocaleString() : '—'}</div><div class="stat-sub">${mv > 0 ? '$' + Math.round(mv * 12).toLocaleString() + '/yr' : 'enter lease amounts'}</div></div>`;
-}
-
-// ── CHART ─────────────────────────────────────────────────
-function renderChart() {
-  const counts = {};
-  allDevices.forEach(d => { const k = d.make || 'Unknown'; counts[k] = (counts[k] || 0) + 1; });
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 7);
-  const colors = ['#f59e0b','#14b8a6','#f97316','#3b82f6','#22c55e','#a855f7','#ef4444'];
-  if (makeChart) makeChart.destroy();
-  makeChart = new Chart(document.getElementById('makeChart').getContext('2d'), {
-    type: 'doughnut',
-    data: {
-      labels: sorted.map(([k]) => k),
-      datasets: [{ data: sorted.map(([,v]) => v), backgroundColor: colors.slice(0, sorted.length), borderColor: '#141720', borderWidth: 3, hoverOffset: 4 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { padding: 10, boxWidth: 8, color: '#6b7394' } },
-        tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw}` } }
-      }
-    }
-  });
-}
-
-// ── MAKE FILTER ───────────────────────────────────────────
-function populateMakeFilter() {
-  const makes = [...new Set(allDevices.map(d => d.make).filter(Boolean))].sort();
-  const sel = document.getElementById('filterMake'), cur = sel.value;
-  sel.innerHTML = '<option value="">All Makes</option>' + makes.map(m => `<option ${m === cur ? 'selected' : ''}>${m}</option>`).join('');
-}
-
-// ── TABLE ─────────────────────────────────────────────────
-function setSort(col) {
-  if (sortCol === col) { sortAsc = !sortAsc; } else { sortCol = col; sortAsc = col !== 'created'; }
-  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
-  document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '↕');
-  const h = document.getElementById('h-' + col);
-  if (h) { h.classList.add('sorted'); h.querySelector('.sort-icon').textContent = sortAsc ? '↑' : '↓'; }
-  renderTable();
-}
-
-function renderTable() {
-  const q = document.getElementById('tableSearch').value.toLowerCase();
-  const ft = document.getElementById('filterType').value;
-  const fm = document.getElementById('filterMake').value;
-
-  let list = allDevices.filter(d => {
-    if (q && ![d.make, d.model, d.customer, d.serial, d.address, d.contact, d.equipmentType, d.notes].join(' ').toLowerCase().includes(q)) return false;
-    if (ft && d.equipmentType !== ft) return false;
-    if (fm && d.make !== fm) return false;
+// ── LEAD RENDER ───────────────────────────────────────────
+function getVisibleLeads() {
+  let list = allLeads.filter(l => {
+    if (currentUser.role !== 'admin' && l.assignedTo !== currentUser.uid) return false;
+    if (filterRepUid && l.assignedTo !== filterRepUid) return false;
     return true;
   });
+  const q = document.getElementById('leadsSearch').value.toLowerCase();
+  const fs = document.getElementById('leadsFilterStatus').value;
+  const fp = document.getElementById('leadsFilterPriority').value;
+  return list.filter(l => {
+    if (q && ![l.businessName, l.address, l.opportunity, l.submittedByName, l.assignedToName, l.equipmentSeen].join(' ').toLowerCase().includes(q)) return false;
+    if (fs && l.status !== fs) return false;
+    if (fp && l.priority !== fp) return false;
+    return true;
+  });
+}
 
+function renderLeadsStats(list) {
+  const total = list.length, hot = list.filter(l=>l.priority==='Hot').length;
+  const won = list.filter(l=>l.status==='Won').length, inProg = list.filter(l=>l.status==='In Progress').length;
+  document.getElementById('leadsStats').innerHTML = `
+    <div class="stat-card blue"><div class="stat-label">Total Leads</div><div class="stat-val">${total}</div></div>
+    <div class="stat-card hot"><div class="stat-label">Hot</div><div class="stat-val">${hot}</div></div>
+    <div class="stat-card success"><div class="stat-label">Won</div><div class="stat-val">${won}</div></div>
+    <div class="stat-card"><div class="stat-label">In Progress</div><div class="stat-val">${inProg}</div></div>`;
+}
+
+function setLeadSort(col) {
+  if (leadSort === col) leadSortAsc = !leadSortAsc; else { leadSort = col; leadSortAsc = col !== 'createdAt'; }
+  document.querySelectorAll('[id^="lh-"]').forEach(th => { th.classList.remove('sorted'); th.querySelector('.sort-icon').textContent = '↕'; });
+  const h = document.getElementById('lh-' + col);
+  if (h) { h.classList.add('sorted'); h.querySelector('.sort-icon').textContent = leadSortAsc ? '↑' : '↓'; }
+  renderLeads();
+}
+
+function renderLeads() {
+  const list = getVisibleLeads();
+  renderLeadsStats(list);
   list.sort((a, b) => {
-    let va, vb;
-    if (sortCol === 'created')  { va = a.created || 0; vb = b.created || 0; }
-    else if (sortCol === 'monthly') { va = parseFloat(a.monthly) || 0; vb = parseFloat(b.monthly) || 0; }
-    else if (sortCol === 'meterRead') { va = parseInt(a.meterRead) || 0; vb = parseInt(b.meterRead) || 0; }
-    else { va = (a[sortCol] || '').toString().toLowerCase(); vb = (b[sortCol] || '').toString().toLowerCase(); }
-    if (va < vb) return sortAsc ? -1 : 1;
-    if (va > vb) return sortAsc ? 1 : -1;
+    let va = a[leadSort]||'', vb = b[leadSort]||'';
+    if (leadSort==='createdAt') { va=a.createdAt||0; vb=b.createdAt||0; }
+    if (va < vb) return leadSortAsc ? -1 : 1;
+    if (va > vb) return leadSortAsc ? 1 : -1;
     return 0;
   });
+  document.getElementById('leadsCount').textContent = `${list.length} of ${allLeads.filter(l=>currentUser.role==='admin'||l.assignedTo===currentUser.uid).length}`;
+  const tbody = document.getElementById('leadsTable');
+  if (!list.length) { tbody.innerHTML = `<tr class="empty-row"><td colspan="8"><h3>${allLeads.length===0?'No leads yet':'No results'}</h3><p>Leads submitted by field techs appear here.</p></td></tr>`; return; }
+  tbody.innerHTML = list.map(l => `<tr onclick="selectLead('${l.id}')" class="${selectedId===l.id?'selected':''}">
+    <td class="td-date">${fmtTs(l.createdAt)}</td>
+    <td class="td-customer">${l.businessName||'—'}</td>
+    <td><span class="priority-dot dot-${l.priority}"></span> ${l.priority||'—'}</td>
+    <td style="font-size:11px;color:var(--muted);">${l.submittedByName||'—'}</td>
+    <td class="td-date">${fmtDate(l.interactionDate)}</td>
+    <td style="font-size:11px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${[l.equipmentType,l.equipmentSeen].filter(Boolean).join(' ')||'—'}</td>
+    <td><select class="status-sel ${(l.status||'New').replace(' ','-')}" onclick="event.stopPropagation()" onchange="updateStatus('${l.id}',this.value)">
+      <option ${l.status==='New'?'selected':''}>New</option>
+      <option ${l.status==='In Progress'?'selected':''}>In Progress</option>
+      <option ${l.status==='Won'?'selected':''}>Won</option>
+      <option ${l.status==='Lost'?'selected':''}>Lost</option>
+    </select></td>
+    <td><button class="del-btn" onclick="event.stopPropagation();deleteLead('${l.id}')" title="Delete">✕</button></td>
+  </tr>`).join('');
+}
 
-  document.getElementById('rowCount').textContent = `${list.length} of ${allDevices.length}`;
+async function updateStatus(id, status) {
+  try { await db.collection('leads').doc(id).update({ status, updatedAt: Date.now() }); }
+  catch(e) { showToast('Update failed','error'); }
+}
 
-  const tbody = document.getElementById('deviceTable');
-  if (!list.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="10"><h3>${allDevices.length === 0 ? 'No records yet' : 'No results'}</h3><p>${allDevices.length === 0 ? 'Field techs log equipment from the Field App.' : 'Try adjusting your filters.'}</p></td></tr>`;
-    return;
-  }
+async function deleteLead(id) {
+  const l = allLeads.find(x => x.id === id);
+  if (!confirm(`Delete lead for ${l?.businessName||'this record'}? This cannot be undone.`)) return;
+  try {
+    await db.collection('leads').doc(id).delete();
+    if (selectedId === id) { selectedId = null; clearDetail(); }
+    showToast('Lead deleted');
+  } catch(e) { showToast('Delete failed','error'); }
+}
 
+// ── LEAD DETAIL ───────────────────────────────────────────
+function selectLead(id) {
+  selectedId = id;
+  renderLeads();
+  const l = allLeads.find(x => x.id === id); if (!l) return;
+  const contactsHtml = (l.contacts||[]).map(c => `<div class="contact-block"><div class="contact-name">${c.name}${c.title?` — ${c.title}`:''}</div>${c.phone?`<div class="contact-detail">${c.phone}</div>`:''}${c.email?`<div class="contact-detail">${c.email}</div>`:''}</div>`).join('') || '<div style="font-size:11px;color:var(--muted);">No contacts listed</div>';
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-body">
+      <div class="detail-name">${l.businessName||'—'}</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+        <span class="priority-badge badge-${l.priority}">${l.priority||'—'}</span>
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--muted);padding:2px 8px;background:var(--surface2);border-radius:10px;">${l.status||'New'}</span>
+      </div>
+      <div class="detail-fields">
+        <div><div class="df-label">Submitted By</div><div class="df-value">${l.submittedByName||'—'} on ${fmtTs(l.createdAt)}</div></div>
+        <div><div class="df-label">Assigned To</div><div class="df-value">${l.assignedToName||'—'}</div></div>
+        <div class="detail-divider"></div>
+        <div><div class="df-label">Address</div><div class="df-value">${l.address||'—'}</div></div>
+        <div><div class="df-label">Phone</div><div class="df-value">${l.phone||'—'}</div></div>
+        <div><div class="df-label">Email</div><div class="df-value">${l.email||'—'}</div></div>
+        <div class="detail-divider"></div>
+        <div><div class="df-label">Key Contacts</div><div style="margin-top:4px;">${contactsHtml}</div></div>
+        <div class="detail-divider"></div>
+        <div><div class="df-label">Date Seen</div><div class="df-value">${fmtDate(l.interactionDate)} — ${l.interactionType||'—'}</div></div>
+        <div><div class="df-label">Equipment Seen</div><div class="df-value">${[l.equipmentType,l.equipmentSeen].filter(Boolean).join(': ')||'—'}</div></div>
+        <div><div class="df-label">Opportunity</div><div class="df-value">${l.opportunity||'—'}</div></div>
+        <div><div class="df-label">Tech Notes</div><div class="df-value">${l.notes||'—'}</div></div>
+        <div class="detail-divider"></div>
+        <div><div class="df-label">Sales Notes</div><textarea class="notes-area" id="salesNotesArea" onchange="saveSalesNotes('${l.id}',this.value)" placeholder="Add your notes here...">${l.salesNotes||''}</textarea></div>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-danger" style="flex:1;justify-content:center;font-size:11px;padding:6px;" onclick="deleteLead('${l.id}')">Delete Lead</button>
+    </div>`;
+}
+
+async function saveSalesNotes(id, notes) {
+  try { await db.collection('leads').doc(id).update({ salesNotes: notes, updatedAt: Date.now() }); }
+  catch(e) { console.error(e); }
+}
+
+function clearDetail() {
+  document.getElementById('detailContent').innerHTML = '<div class="detail-empty">Select a row to view details and update status.</div>';
+}
+
+// ── EQUIPMENT RENDER ──────────────────────────────────────
+function renderEquipStats() {
+  const t = allDevices.length, a = allDevices.filter(d=>leaseStatus(d.leaseEnd)==='active').length;
+  const e = allDevices.filter(d=>leaseStatus(d.leaseEnd)==='expiring').length;
+  const makes = new Set(allDevices.map(d=>d.make).filter(Boolean)).size;
+  document.getElementById('equipStats').innerHTML = `
+    <div class="stat-card blue"><div class="stat-label">Total Equipment</div><div class="stat-val">${t}</div></div>
+    <div class="stat-card success"><div class="stat-label">Active Leases</div><div class="stat-val">${a}</div></div>
+    <div class="stat-card hot"><div class="stat-label">Expiring ≤90d</div><div class="stat-val">${e}</div></div>
+    <div class="stat-card"><div class="stat-label">Makes Tracked</div><div class="stat-val">${makes}</div></div>`;
+}
+
+function populateMakeFilter() {
+  const makes = [...new Set(allDevices.map(d=>d.make).filter(Boolean))].sort();
+  const sel = document.getElementById('equipFilterMake'), cur = sel.value;
+  sel.innerHTML = '<option value="">All Makes</option>' + makes.map(m=>`<option ${m===cur?'selected':''}>${m}</option>`).join('');
+}
+
+function setEquipSort(col) {
+  if (equipSort===col) equipSortAsc=!equipSortAsc; else { equipSort=col; equipSortAsc=col!=='created'; }
+  document.querySelectorAll('[id^="eh-"]').forEach(th => { th.classList.remove('sorted'); th.querySelector('.sort-icon').textContent='↕'; });
+  const h = document.getElementById('eh-'+col);
+  if (h) { h.classList.add('sorted'); h.querySelector('.sort-icon').textContent = equipSortAsc?'↑':'↓'; }
+  renderEquip();
+}
+
+function renderEquip() {
+  renderEquipStats();
+  const q = document.getElementById('equipSearch').value.toLowerCase();
+  const fm = document.getElementById('equipFilterMake').value;
+  let list = allDevices.filter(d => {
+    if (q && ![d.make,d.model,d.customer,d.serial,d.equipmentType].join(' ').toLowerCase().includes(q)) return false;
+    if (fm && d.make!==fm) return false;
+    return true;
+  });
+  list.sort((a,b) => {
+    let va = a[equipSort]||'', vb = b[equipSort]||'';
+    if (equipSort==='created') { va=a.created||0; vb=b.created||0; }
+    else if (equipSort==='monthly') { va=parseFloat(a.monthly)||0; vb=parseFloat(b.monthly)||0; }
+    else if (equipSort==='meterRead') { va=parseInt(a.meterRead)||0; vb=parseInt(b.meterRead)||0; }
+    if (va<vb) return equipSortAsc?-1:1; if (va>vb) return equipSortAsc?1:-1; return 0;
+  });
+  document.getElementById('equipCount').textContent = `${list.length} of ${allDevices.length}`;
+  const ls = { active:'badge-active', expiring:'badge-expiring', expired:'badge-expired', unknown:'badge-unknown' };
+  const lb = { active:'ACTIVE', expiring:'EXPIRING', expired:'EXPIRED', unknown:'—' };
+  const tbody = document.getElementById('equipTable');
+  if (!list.length) { tbody.innerHTML=`<tr class="empty-row"><td colspan="9"><h3>No records</h3></td></tr>`; return; }
   tbody.innerHTML = list.map(d => {
-    const s = leaseStatus(d.leaseEnd), [bc, bl] = leaseBadge(s);
-    return `<tr onclick="selectRow('${d.id}')" class="${selectedId === d.id ? 'selected' : ''}">
-      <td class="td-date">${fmtDateShort(d.created)}</td>
-      <td class="td-customer">${d.customer || '—'}</td>
-      <td>${d.equipmentType ? `<span class="td-type">${d.equipmentType}</span>` : '<span style="color:var(--muted2)">—</span>'}</td>
-      <td><div class="td-make">${d.make || '—'}</div><div class="td-model">${d.model || ''}</div></td>
-      <td class="td-serial">${d.serial || '—'}</td>
-      <td class="td-money">${fmtMeter(d.meterRead)}</td>
-      <td style="font-family:var(--font-mono);font-size:11px;white-space:nowrap;">${fmtDate(d.leaseEnd)}</td>
-      <td class="td-money">${fmtMoney(d.monthly)}</td>
-      <td><span class="lease-badge ${bc}">${bl}</span></td>
-      <td><button class="del-btn" onclick="event.stopPropagation();confirmDelete('${d.id}')" title="Delete">✕</button></td>
+    const s=leaseStatus(d.leaseEnd);
+    return `<tr onclick="selectEquip('${d.id}')" class="${selectedId===d.id?'selected':''}">
+      <td class="td-date">${fmtTs(d.created)}</td>
+      <td class="td-customer">${d.customer||'—'}</td>
+      <td style="font-family:var(--font-mono);font-size:10px;color:var(--muted);">${d.equipmentType||'—'}</td>
+      <td><div style="font-family:var(--font-head);font-size:13px;font-weight:600;">${d.make||'—'}</div><div style="font-family:var(--font-mono);font-size:10px;color:var(--blue);">${d.model||''}</div></td>
+      <td style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${d.serial||'—'}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;">${fmtMeter(d.meterRead)}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;">${fmtDate(d.leaseEnd)}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;">${fmtMoney(d.monthly)}</td>
+      <td><button class="del-btn" onclick="event.stopPropagation();deleteEquip('${d.id}')" title="Delete">✕</button></td>
     </tr>`;
   }).join('');
 }
 
-// ── SELECT ROW ────────────────────────────────────────────
-function selectRow(id) {
-  selectedId = id;
-  renderTable();
-  renderDetail(id);
-}
-
-// ── DETAIL PANEL ─────────────────────────────────────────
-function renderDetail(id) {
-  const d = allDevices.find(x => x.id === id);
-  if (!d) { clearDetail(); return; }
-  const s = leaseStatus(d.leaseEnd), [bc, bl] = leaseBadge(s);
-  const photo = d.photoURL
-    ? `<img class="detail-photo" src="${d.photoURL}" alt="Equipment">`
-    : `<div class="detail-photo-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg></div>`;
-
+function selectEquip(id) {
+  selectedId = id; renderEquip();
+  const d = allDevices.find(x=>x.id===id); if (!d) return;
+  const s=leaseStatus(d.leaseEnd), ls={active:'badge-active',expiring:'badge-expiring',expired:'badge-expired',unknown:'badge-unknown'}, lb={active:'ACTIVE',expiring:'EXPIRING',expired:'EXPIRED',unknown:'—'};
   document.getElementById('detailContent').innerHTML = `
-    ${photo}
+    ${d.photoURL?`<img class="detail-photo" src="${d.photoURL}" alt="">`:`<div class="detail-photo-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg></div>`}
     <div class="detail-body">
-      <div class="detail-name">${d.make || 'Unknown'} ${d.model || ''}</div>
-      ${d.equipmentType ? `<span class="detail-type">${d.equipmentType}</span>` : ''}
+      <div class="detail-name">${d.make||'?'} ${d.model||''}</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);background:var(--surface2);display:inline-block;padding:2px 8px;border-radius:10px;margin-bottom:10px;">${d.equipmentType||'Equipment'}</div>
       <div class="detail-fields">
-        <div><div class="df-label">Date Seen</div><div class="df-value">${fmtDateShort(d.created)}</div></div>
+        <div><div class="df-label">Customer</div><div class="df-value">${d.customer||'—'}</div></div>
+        <div><div class="df-label">Address</div><div class="df-value">${d.address||'—'}</div></div>
+        <div><div class="df-label">Contact</div><div class="df-value">${d.contact||'—'}${d.phone?` · ${d.phone}`:''}</div></div>
         <div class="detail-divider"></div>
-        <div><div class="df-label">Customer</div><div class="df-value">${d.customer || '—'}</div></div>
-        <div><div class="df-label">Contact</div><div class="df-value">${d.contact || '—'}</div></div>
-        <div><div class="df-label">Phone / Email</div><div class="df-value">${d.phone || '—'}</div></div>
-        <div><div class="df-label">Address</div><div class="df-value">${d.address || '—'}</div></div>
+        <div><div class="df-label">Serial #</div><div class="df-value mono">${d.serial||'—'}</div></div>
+        <div><div class="df-label">Meter Read</div><div class="df-value">${fmtMeter(d.meterRead)}${d.meterDate?` as of ${fmtDate(d.meterDate)}`:''}</div></div>
         <div class="detail-divider"></div>
-        <div><div class="df-label">Serial #</div><div class="df-value mono">${d.serial || '—'}</div></div>
-        <div><div class="df-label">Age</div><div class="df-value">${calcAge(d.installDate) !== '—' ? calcAge(d.installDate) + ' old' : '—'}</div></div>
-        <div><div class="df-label">Meter Read</div><div class="df-value">${fmtMeter(d.meterRead)}${d.meterDate ? ` <span style="font-size:10px;color:var(--muted);font-family:var(--font-mono);">as of ${fmtDate(d.meterDate)}</span>` : ''}</div></div>
-        <div class="detail-divider"></div>
-        <div><div class="df-label">Lease Status</div><div class="df-value"><span class="lease-badge ${bc}">${bl}</span></div></div>
+        <div><div class="df-label">Lease Status</div><div class="df-value"><span style="font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:10px;" class="${ls[s]}">${lb[s]}</span></div></div>
         <div><div class="df-label">Lease End</div><div class="df-value">${fmtDate(d.leaseEnd)}</div></div>
         <div><div class="df-label">Monthly</div><div class="df-value">${fmtMoney(d.monthly)}</div></div>
-        <div><div class="df-label">Lease Company</div><div class="df-value">${d.leaseCompany || '—'}</div></div>
-        <div><div class="df-label">Contract #</div><div class="df-value mono">${d.leaseNum || '—'}</div></div>
-        ${d.notes ? `<div class="detail-divider"></div><div><div class="df-label">Notes</div><div class="df-value" style="font-size:12px;line-height:1.5;">${d.notes}</div></div>` : ''}
+        ${d.notes?`<div class="detail-divider"></div><div><div class="df-label">Notes</div><div class="df-value">${d.notes}</div></div>`:''}
       </div>
     </div>
-    <div class="detail-actions">
-      <button class="btn btn-danger" style="flex:1;justify-content:center;font-size:13px;padding:7px;" onclick="confirmDelete('${d.id}')">
-        <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-        Delete Record
-      </button>
-    </div>`;
+    <div class="detail-actions"><button class="btn btn-danger" style="flex:1;justify-content:center;font-size:11px;padding:6px;" onclick="deleteEquip('${d.id}')">Delete Record</button></div>`;
 }
 
-function clearDetail() {
-  document.getElementById('detailContent').innerHTML = `
-    <div class="detail-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      <p>Select a row to view full record details</p>
-    </div>`;
+async function deleteEquip(id) {
+  const d = allDevices.find(x=>x.id===id);
+  if (!confirm(`Delete equipment record for ${d?.customer||'this customer'}?`)) return;
+  try { await db.collection('devices').doc(id).delete(); if(selectedId===id){selectedId=null;clearDetail();} showToast('Deleted'); }
+  catch(e) { showToast('Delete failed','error'); }
 }
 
-// ── DELETE ────────────────────────────────────────────────
-async function confirmDelete(id) {
-  const d = allDevices.find(x => x.id === id);
-  const name = [d?.make, d?.model, d?.customer].filter(Boolean).join(' · ') || 'this record';
-  if (!confirm(`Delete ${name}?\n\nThis cannot be undone.`)) return;
-  try {
-    await db.collection('devices').doc(id).delete();
-    if (selectedId === id) { selectedId = null; clearDetail(); }
-    showToast('Record deleted');
-  } catch(err) {
-    showToast('Delete failed: ' + err.message, true);
+// ── MONTHLY REPORT ────────────────────────────────────────
+function populateMonthSelector() {
+  const sel = document.getElementById('reportMonth');
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label = d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    sel.innerHTML += `<option value="${val}" ${i===0?'selected':''}>${label}</option>`;
   }
+  sel.addEventListener('change', updateReportPreview);
+  updateReportPreview();
 }
 
-// ── EXPORT ────────────────────────────────────────────────
-function exportCSV() {
-  if (!allDevices.length) { showToast('No data to export'); return; }
-  const hdr = ['Date Seen','Customer','Contact','Phone','Address','Type','Make','Model','Serial','Install Date','Age','Meter Read','Meter Date','Lease Start','Lease End','Monthly $','Annual $','Lease Co','Contract #','Status','Notes'];
-  const rows = allDevices.map(d => [
-    fmtDateShort(d.created), d.customer, d.contact, d.phone, d.address, d.equipmentType,
-    d.make, d.model, d.serial, d.installDate, calcAge(d.installDate), d.meterRead, d.meterDate,
-    d.leaseStart, d.leaseEnd, d.monthly || '', d.monthly ? (parseFloat(d.monthly)*12).toFixed(2) : '',
-    d.leaseCompany, d.leaseNum, leaseStatus(d.leaseEnd), d.notes
-  ].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`));
-  const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(new Blob([[hdr, ...rows].map(r => r.join(',')).join('\n')], {type:'text/csv'})),
-    download: `comptrack_${new Date().toISOString().slice(0,10)}.csv`
+function getReportLeads() {
+  const ym = document.getElementById('reportMonth').value;
+  const visLeads = allLeads.filter(l => currentUser.role==='admin' || l.assignedTo===currentUser.uid);
+  return visLeads.filter(l => {
+    const d = new Date(l.createdAt);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` === ym;
   });
+}
+
+function updateReportPreview() {
+  const list = getReportLeads();
+  const hot=list.filter(l=>l.priority==='Hot').length, warm=list.filter(l=>l.priority==='Warm').length, cold=list.filter(l=>l.priority==='Cold').length;
+  const won=list.filter(l=>l.status==='Won').length, lost=list.filter(l=>l.status==='Lost').length, inProg=list.filter(l=>l.status==='In Progress').length;
+  document.getElementById('reportPreview').innerHTML = list.length === 0 ? 'No leads for this month' :
+    `Total: ${list.length} leads<br>Hot: ${hot} · Warm: ${warm} · Cold: ${cold}<br>Won: ${won} · In Progress: ${inProg} · Lost: ${lost}`;
+}
+
+function exportReport() {
+  const list = getReportLeads();
+  if (!list.length) { showToast('No leads for this period','error'); return; }
+  const ym = document.getElementById('reportMonth').value;
+  const monthLabel = document.getElementById('reportMonth').selectedOptions[0].text;
+
+  const hot=list.filter(l=>l.priority==='Hot').length, warm=list.filter(l=>l.priority==='Warm').length, cold=list.filter(l=>l.priority==='Cold').length;
+  const newL=list.filter(l=>l.status==='New').length, inProg=list.filter(l=>l.status==='In Progress').length, won=list.filter(l=>l.status==='Won').length, lost=list.filter(l=>l.status==='Lost').length;
+
+  const summary = [
+    ['MBM LeadTool — Monthly Lead Report'],
+    [`Month: ${monthLabel}`],
+    [`Generated: ${new Date().toLocaleDateString()}`],
+    [`Prepared for: ${currentUser.name||currentUser.email}`],
+    [],
+    ['SUMMARY'],
+    ['Total Leads', list.length],
+    ['Hot', hot], ['Warm', warm], ['Cold', cold],
+    ['New', newL], ['In Progress', inProg], ['Won', won], ['Lost', lost],
+    [],
+    ['LEAD DETAILS'],
+    ['Date Submitted','Business Name','Address','Phone','Email','Priority','Status','Submitted By','Assigned To','Date Seen','Interaction Type','Equipment Type','Equipment Seen','Opportunity','Tech Notes','Sales Notes','Key Contacts'],
+  ];
+
+  const rows = list.map(l => [
+    new Date(l.createdAt).toLocaleDateString(), l.businessName, l.address, l.phone, l.email,
+    l.priority, l.status, l.submittedByName, l.assignedToName,
+    fmtDate(l.interactionDate), l.interactionType, l.equipmentType, l.equipmentSeen,
+    l.opportunity, l.notes, l.salesNotes,
+    (l.contacts||[]).map(c=>`${c.name}${c.title?' ('+c.title+')':''}${c.phone?' '+c.phone:''}${c.email?' '+c.email:''}`).join('; ')
+  ].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`));
+
+  const csv = [...summary.map(r=>r.map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(',')), ...rows].join('\n');
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([csv],{type:'text/csv'})),
+    download: `MBM_LeadReport_${ym}.csv`
+  });
+  a.click();
+  showToast('Report exported');
+}
+
+function exportEquipCSV() {
+  if (!allDevices.length) { showToast('No data','error'); return; }
+  const hdr=['Date Seen','Customer','Contact','Phone','Type','Make','Model','Serial','Install Date','Meter','Meter Date','Lease Start','Lease End','Monthly','Lease Co','Contract #','Notes'];
+  const rows=allDevices.map(d=>[fmtTs(d.created),d.customer,d.contact,d.phone,d.equipmentType,d.make,d.model,d.serial,d.installDate,d.meterRead,d.meterDate,d.leaseStart,d.leaseEnd,d.monthly,d.leaseCompany,d.leaseNum,d.notes].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`));
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([[hdr,...rows].map(r=>r.join(',')).join('\n')],{type:'text/csv'})),download:`MBM_Equipment_${new Date().toISOString().slice(0,10)}.csv`});
   a.click(); showToast('CSV exported');
 }
 
 // ── TOAST ─────────────────────────────────────────────────
-function showToast(msg, isError = false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast' + (isError ? ' error' : '');
-  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+function showToast(msg, type='info') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type}`;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000);
 }
 
 // Init sort header state
-document.getElementById('h-created').classList.add('sorted');
-document.querySelector('#h-created .sort-icon').textContent = '↓';
-
-setupListener();
+document.getElementById('lh-createdAt').classList.add('sorted');
+document.querySelector('#lh-createdAt .sort-icon').textContent = '↓';
+document.getElementById('eh-created').classList.add('sorted');
+document.querySelector('#eh-created .sort-icon').textContent = '↓';
 </script>
 </body>
 </html>
