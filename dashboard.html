@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompTrack — Sales Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b0e18; --surface: #141720; --surface2: #1c2030;
+    --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+    --amber: #f59e0b; --amber-dim: rgba(245,158,11,0.12); --amber-border: rgba(245,158,11,0.3);
+    --teal: #14b8a6; --teal-dim: rgba(20,184,166,0.12);
+    --text: #e8eaf0; --muted: #6b7394;
+    --danger: #ef4444; --danger-dim: rgba(239,68,68,0.15);
+    --success: #22c55e; --success-dim: rgba(34,197,94,0.15);
+    --warn: #f97316; --warn-dim: rgba(249,115,22,0.15);
+    --radius: 12px;
+    --font-head: 'Rajdhani', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-body: 'Inter', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; font-size: 15px; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: var(--font-head); font-size: 22px; font-weight: 700; letter-spacing: 2px; color: var(--amber); display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 30px; height: 30px; background: var(--amber); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 18px; height: 18px; fill: #0f1117; }
+  .logo-sub { font-size: 13px; font-weight: 400; letter-spacing: 3px; color: var(--muted); margin-left: 4px; }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
+  .sync-dot.connected { background: var(--success); box-shadow: 0 0 6px rgba(34,197,94,0.5); }
+  .sync-dot.connecting { background: var(--amber); }
+  .sync-label { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .nav-link { font-family: var(--font-head); font-size: 14px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 6px 12px; border-radius: 7px; border: 1px solid var(--border2); transition: all 0.15s; }
+  .nav-link:hover { color: var(--text); background: var(--surface2); }
+  .btn { font-family: var(--font-head); font-size: 14px; font-weight: 600; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+  main { max-width: 1400px; margin: 0 auto; padding: 32px; }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; }
+  .stat-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 10px; }
+  .stat-val { font-family: var(--font-head); font-size: 36px; font-weight: 700; line-height: 1; color: var(--text); }
+  .stat-sub { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 6px; }
+  .stat-card.amber .stat-val { color: var(--amber); }
+  .stat-card.danger .stat-val { color: var(--danger); }
+  .stat-card.success .stat-val { color: var(--success); }
+  .stat-card.teal .stat-val { color: var(--teal); }
+
+  /* CHARTS */
+  .charts-row { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 32px; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+  .chart-title { font-family: var(--font-head); font-size: 16px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 20px; color: var(--text); }
+  .chart-subtitle { font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-left: 8px; }
+  .chart-wrap { position: relative; height: 240px; }
+
+  /* TABLE SECTION */
+  .table-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .table-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .table-title { font-family: var(--font-head); font-size: 18px; font-weight: 600; flex: 1; }
+  .search-wrap { position: relative; min-width: 220px; }
+  .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--muted); }
+  input[type="text"], select { background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--font-body); font-size: 13px; padding: 8px 12px; outline: none; }
+  input[type="text"] { padding-left: 34px; }
+  input[type="text"]:focus, select:focus { border-color: var(--amber); }
+  select { cursor: pointer; appearance: none; padding-right: 28px; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 900px; }
+  thead th { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); cursor: pointer; white-space: nowrap; user-select: none; }
+  thead th:hover { color: var(--text); }
+  thead th .sort-arrow { margin-left: 4px; opacity: 0.4; }
+  thead th.sorted .sort-arrow { opacity: 1; color: var(--amber); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; cursor: pointer; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 13px 16px; color: var(--text); vertical-align: middle; }
+  .td-customer { font-weight: 500; }
+  .td-make { font-family: var(--font-head); font-size: 14px; font-weight: 600; }
+  .td-model { font-family: var(--font-mono); font-size: 11px; color: var(--amber); }
+  .td-serial { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .td-money { font-family: var(--font-mono); }
+
+  .lease-badge { font-family: var(--font-mono); font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+  .badge-active { background: var(--success-dim); color: var(--success); }
+  .badge-expiring { background: var(--warn-dim); color: var(--warn); }
+  .badge-expired { background: var(--danger-dim); color: var(--danger); }
+  .badge-unknown { background: var(--surface2); color: var(--muted); }
+
+  .days-chip { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .days-chip.urgent { color: var(--warn); }
+  .days-chip.overdue { color: var(--danger); }
+
+  /* DETAIL PANEL */
+  .detail-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: flex; justify-content: flex-end; backdrop-filter: blur(4px); }
+  .detail-overlay.hidden { display: none; }
+  .detail-panel { background: var(--surface); border-left: 1px solid var(--border2); width: 420px; max-width: 100%; height: 100%; overflow-y: auto; animation: slideIn 0.2s ease; }
+  @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .panel-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 1; }
+  .panel-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; }
+  .panel-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 20px; padding: 4px; border-radius: 6px; }
+  .panel-close:hover { color: var(--text); background: var(--surface2); }
+  .panel-photo { width: 100%; height: 220px; object-fit: cover; }
+  .panel-photo-ph { width: 100%; height: 180px; background: var(--surface2); display: flex; align-items: center; justify-content: center; }
+  .panel-photo-ph svg { width: 48px; height: 48px; opacity: 0.2; }
+  .panel-body { padding: 20px 24px; }
+  .panel-section { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .panel-section:last-child { border-bottom: none; margin-bottom: 0; }
+  .panel-section-title { font-family: var(--font-head); font-size: 12px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .panel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .pf-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 3px; }
+  .pf-value { font-size: 14px; color: var(--text); font-weight: 500; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface2); border: 1px solid var(--amber-border); color: var(--amber); font-family: var(--font-mono); font-size: 13px; padding: 12px 20px; border-radius: 10px; z-index: 999; opacity: 0; transform: translateY(10px); transition: all 0.25s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  .empty-table { padding: 60px; text-align: center; color: var(--muted); }
+  .empty-table h3 { font-family: var(--font-head); font-size: 18px; color: var(--text); margin-bottom: 6px; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    .charts-row { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    main { padding: 20px 16px; }
+    header { padding: 0 16px; }
+    .logo-sub { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 20 20"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L13 10.414V17a1 1 0 01-1.447.894l-4-2A1 1 0 017 15V10.414L3.293 6.707A1 1 0 013 6V4z"/></svg>
+    </div>
+    CompTrack <span class="logo-sub">SALES</span>
+  </div>
+  <div class="header-right">
+    <div class="sync-dot" id="syncDot"></div>
+    <span class="sync-label" id="syncLabel">Connecting...</span>
+    <button class="btn btn-ghost" onclick="exportCSV()">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"/></svg>
+      Export CSV
+    </button>
+    <a href="index.html" class="nav-link">← Field App</a>
+  </div>
+</header>
+
+<main>
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="stat-label">Total Units</div><div class="stat-val">—</div></div>
+    <div class="stat-card success"><div class="stat-label">Active Leases</div><div class="stat-val">—</div></div>
+    <div class="stat-card amber"><div class="stat-label">Expiring ≤90 Days</div><div class="stat-val">—</div></div>
+    <div class="stat-card teal"><div class="stat-label">Monthly Value Tracked</div><div class="stat-val">—</div></div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Manufacturers <span class="chart-subtitle">by unit count</span></div>
+      <div class="chart-wrap"><canvas id="makeChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Lease Expirations <span class="chart-subtitle">next 12 months</span></div>
+      <div class="chart-wrap"><canvas id="expiryChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <div class="table-header">
+      <div class="table-title">All Equipment</div>
+      <div class="search-wrap">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+        <input type="text" id="tableSearch" placeholder="Search..." oninput="renderTable()">
+      </div>
+      <select id="tableFilterLease" onchange="renderTable()" style="width:auto;">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="expiring">Expiring</option>
+        <option value="expired">Expired</option>
+      </select>
+      <select id="tableFilterMake" onchange="renderTable()" style="width:auto;">
+        <option value="">All Makes</option>
+      </select>
+      <span id="rowCount" style="font-family:var(--font-mono);font-size:11px;color:var(--muted);white-space:nowrap;"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="setSort('customer')">Customer <span class="sort-arrow" id="s-customer">↕</span></th>
+            <th onclick="setSort('make')">Make / Model <span class="sort-arrow" id="s-make">↕</span></th>
+            <th onclick="setSort('serial')">Serial # <span class="sort-arrow" id="s-serial">↕</span></th>
+            <th onclick="setSort('age')">Age <span class="sort-arrow" id="s-age">↕</span></th>
+            <th onclick="setSort('leaseEnd')">Lease Ends <span class="sort-arrow" id="s-leaseEnd">↕</span></th>
+            <th onclick="setSort('daysLeft')">Days Left <span class="sort-arrow" id="s-daysLeft">↕</span></th>
+            <th onclick="setSort('monthly')">Monthly $ <span class="sort-arrow" id="s-monthly">↕</span></th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="deviceTable">
+          <tr><td colspan="8" class="empty-table"><h3>Loading...</h3></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- DETAIL PANEL -->
+<div class="detail-overlay hidden" id="detailOverlay" onclick="handlePanelOverlay(event)">
+  <div class="detail-panel" id="detailPanel">
+    <div class="panel-header">
+      <div class="panel-title" id="panelTitle">Device Details</div>
+      <button class="panel-close" onclick="closePanel()">✕</button>
+    </div>
+    <div id="panelContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let allDevices = [];
+let sortCol = 'leaseEnd', sortAsc = true;
+let makeChart = null, expiryChart = null;
+
+Chart.defaults.color = '#6b7394';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+
+// ── HELPERS ──────────────────────────────────────────────
+function getLeaseStatus(end) {
+  if (!end) return 'unknown';
+  const d = Math.floor((new Date(end) - new Date()) / 86400000);
+  if (d < 0) return 'expired'; if (d <= 90) return 'expiring'; return 'active';
+}
+function daysLeft(end) { return end ? Math.floor((new Date(end) - new Date()) / 86400000) : null; }
+function calcAge(d) {
+  if (!d) return null;
+  const m = (new Date().getFullYear() - new Date(d).getFullYear()) * 12 + (new Date().getMonth() - new Date(d).getMonth());
+  return m < 12 ? m + ' mo' : (m / 12).toFixed(1) + ' yrs';
+}
+function fmtDate(d) { if (!d) return '—'; const [y, m, day] = d.split('-'); return `${m}/${day}/${y}`; }
+function fmtMoney(v) { if (!v) return '—'; return '$' + parseFloat(v).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function totalMonthly() { return allDevices.reduce((s, d) => s + (parseFloat(d.monthly) || 0), 0); }
+
+// ── SYNC STATUS ──────────────────────────────────────────
+function setSyncStatus(s) {
+  document.getElementById('syncDot').className = 'sync-dot ' + s;
+  document.getElementById('syncLabel').textContent = s === 'connected' ? 'Live' : s === 'connecting' ? 'Connecting...' : 'Offline';
+}
+
+// ── FIRESTORE LISTENER ───────────────────────────────────
+function setupListener() {
+  setSyncStatus('connecting');
+  db.collection('devices').orderBy('created', 'desc').onSnapshot(snapshot => {
+    allDevices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setSyncStatus('connected');
+    populateMakeFilter();
+    renderStats();
+    renderCharts();
+    renderTable();
+  }, err => {
+    setSyncStatus('error');
+    console.error(err);
+  });
+}
+
+// ── STATS ────────────────────────────────────────────────
+function renderStats() {
+  const t = allDevices.length;
+  const a = allDevices.filter(d => getLeaseStatus(d.leaseEnd) === 'active').length;
+  const e = allDevices.filter(d => getLeaseStatus(d.leaseEnd) === 'expiring').length;
+  const mv = totalMonthly();
+  const expired = allDevices.filter(d => getLeaseStatus(d.leaseEnd) === 'expired').length;
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Units</div><div class="stat-val">${t}</div><div class="stat-sub">${allDevices.length > 0 ? [...new Set(allDevices.map(d => d.make).filter(Boolean))].length + ' makes tracked' : 'no data yet'}</div></div>
+    <div class="stat-card success"><div class="stat-label">Active Leases</div><div class="stat-val">${a}</div><div class="stat-sub">${expired} expired</div></div>
+    <div class="stat-card amber"><div class="stat-label">Expiring ≤90 Days</div><div class="stat-val">${e}</div><div class="stat-sub">opportunity window</div></div>
+    <div class="stat-card teal"><div class="stat-label">Monthly Value Tracked</div><div class="stat-val">${mv > 0 ? '$' + Math.round(mv).toLocaleString() : '—'}</div><div class="stat-sub">${mv > 0 ? '$' + Math.round(mv * 12).toLocaleString() + '/yr total' : 'enter lease amounts'}</div></div>`;
+}
+
+// ── CHARTS ────────────────────────────────────────────────
+function renderCharts() {
+  renderMakeChart();
+  renderExpiryChart();
+}
+
+function renderMakeChart() {
+  const counts = {};
+  allDevices.forEach(d => { const k = d.make || 'Unknown'; counts[k] = (counts[k] || 0) + 1; });
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const labels = sorted.map(([k]) => k);
+  const data = sorted.map(([, v]) => v);
+  const colors = ['#f59e0b','#14b8a6','#f97316','#3b82f6','#22c55e','#a855f7','#ef4444','#ec4899'];
+
+  if (makeChart) makeChart.destroy();
+  const ctx = document.getElementById('makeChart').getContext('2d');
+  makeChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors.slice(0, data.length), borderColor: '#141720', borderWidth: 3, hoverOffset: 6 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 14, boxWidth: 10, color: '#6b7394', font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} unit${ctx.raw !== 1 ? 's' : ''}` } }
+      }
+    }
+  });
+}
+
+function renderExpiryChart() {
+  const now = new Date();
+  const months = [];
+  const counts = [];
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const label = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    months.push(label);
+    counts.push(allDevices.filter(dev => dev.leaseEnd && dev.leaseEnd.slice(0, 7) === key).length);
+  }
+
+  if (expiryChart) expiryChart.destroy();
+  const ctx = document.getElementById('expiryChart').getContext('2d');
+  expiryChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Leases expiring',
+        data: counts,
+        backgroundColor: counts.map((v, i) => i < 3 ? 'rgba(249,115,22,0.7)' : 'rgba(245,158,11,0.5)'),
+        borderColor: counts.map((v, i) => i < 3 ? '#f97316' : '#f59e0b'),
+        borderWidth: 1, borderRadius: 4, borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} lease${ctx.raw !== 1 ? 's' : ''} ending` } } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6b7394' } },
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#6b7394', stepSize: 1, precision: 0 }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ── MAKE FILTER ───────────────────────────────────────────
+function populateMakeFilter() {
+  const makes = [...new Set(allDevices.map(d => d.make).filter(Boolean))].sort();
+  const sel = document.getElementById('tableFilterMake');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Makes</option>' + makes.map(m => `<option value="${m}" ${m === cur ? 'selected' : ''}>${m}</option>`).join('');
+}
+
+// ── TABLE ─────────────────────────────────────────────────
+function setSort(col) {
+  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+  document.querySelectorAll('thead th').forEach(th => th.classList.remove('sorted'));
+  const arrows = { customer: '↕', make: '↕', serial: '↕', age: '↕', leaseEnd: '↕', daysLeft: '↕', monthly: '↕' };
+  arrows[col] = sortAsc ? '↑' : '↓';
+  Object.entries(arrows).forEach(([k, v]) => {
+    const el = document.getElementById('s-' + k);
+    if (el) el.textContent = v;
+    if (k === sortCol && el) el.closest('th').classList.add('sorted');
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const q = document.getElementById('tableSearch').value.toLowerCase();
+  const fl = document.getElementById('tableFilterLease').value;
+  const fm = document.getElementById('tableFilterMake').value;
+
+  let list = allDevices.filter(d => {
+    if (q && ![d.make, d.model, d.customer, d.serial, d.address, d.contact].join(' ').toLowerCase().includes(q)) return false;
+    if (fl && getLeaseStatus(d.leaseEnd) !== fl) return false;
+    if (fm && d.make !== fm) return false;
+    return true;
+  });
+
+  list.sort((a, b) => {
+    let va, vb;
+    if (sortCol === 'customer') { va = a.customer || ''; vb = b.customer || ''; return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va); }
+    if (sortCol === 'make') { va = a.make || ''; vb = b.make || ''; return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va); }
+    if (sortCol === 'serial') { va = a.serial || ''; vb = b.serial || ''; return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va); }
+    if (sortCol === 'age') { va = a.installDate ? new Date(a.installDate).getTime() : 0; vb = b.installDate ? new Date(b.installDate).getTime() : 0; return sortAsc ? va - vb : vb - va; }
+    if (sortCol === 'leaseEnd') { va = a.leaseEnd || '9999'; vb = b.leaseEnd || '9999'; return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va); }
+    if (sortCol === 'daysLeft') { va = daysLeft(a.leaseEnd) ?? 99999; vb = daysLeft(b.leaseEnd) ?? 99999; return sortAsc ? va - vb : vb - va; }
+    if (sortCol === 'monthly') { va = parseFloat(a.monthly) || 0; vb = parseFloat(b.monthly) || 0; return sortAsc ? va - vb : vb - va; }
+    return 0;
+  });
+
+  document.getElementById('rowCount').textContent = `${list.length} of ${allDevices.length} records`;
+
+  const tbody = document.getElementById('deviceTable');
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="empty-table"><h3>${allDevices.length === 0 ? 'No equipment logged yet' : 'No results'}</h3><p>${allDevices.length === 0 ? 'Field techs can log equipment from the Field App.' : 'Try adjusting your filters.'}</p></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(d => {
+    const s = getLeaseStatus(d.leaseEnd);
+    const [bc, bl] = { active: ['badge-active', 'ACTIVE'], expiring: ['badge-expiring', 'EXPIRING'], expired: ['badge-expired', 'EXPIRED'], unknown: ['badge-unknown', '—'] }[s];
+    const dl = daysLeft(d.leaseEnd);
+    const dlClass = dl !== null ? (dl < 0 ? 'overdue' : dl <= 30 ? 'urgent' : '') : '';
+    const dlText = dl !== null ? (dl < 0 ? `${Math.abs(dl)}d ago` : `${dl}d`) : '—';
+    return `<tr onclick="openPanel('${d.id}')">
+      <td class="td-customer">${d.customer || '—'}</td>
+      <td><div class="td-make">${d.make || '—'}</div><div class="td-model">${d.model || ''}</div></td>
+      <td class="td-serial">${d.serial || '—'}</td>
+      <td>${calcAge(d.installDate) || '—'}</td>
+      <td>${fmtDate(d.leaseEnd)}</td>
+      <td><span class="days-chip ${dlClass}">${dlText}</span></td>
+      <td class="td-money">${fmtMoney(d.monthly)}</td>
+      <td><span class="lease-badge ${bc}">${bl}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────
+function openPanel(id) {
+  const d = allDevices.find(x => x.id === id); if (!d) return;
+  const s = getLeaseStatus(d.leaseEnd);
+  const [bc, bl] = { active: ['badge-active', 'ACTIVE'], expiring: ['badge-expiring', 'EXPIRING'], expired: ['badge-expired', 'EXPIRED'], unknown: ['badge-unknown', '—'] }[s];
+  const dl = daysLeft(d.leaseEnd);
+  const dlStr = dl !== null ? (dl < 0 ? `${Math.abs(dl)} days past expiry` : `${dl} days remaining`) : '';
+  const photo = d.photoURL ? `<img class="panel-photo" src="${d.photoURL}" alt="Device">` :
+    `<div class="panel-photo-ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/></svg></div>`;
+  document.getElementById('panelTitle').textContent = `${d.make || 'Device'} ${d.model || ''}`.trim();
+  document.getElementById('panelContent').innerHTML = `${photo}
+    <div class="panel-body">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <span class="lease-badge ${bc}">${bl}</span>
+        ${dlStr ? `<span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${dlStr}</span>` : ''}
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Customer</div>
+        <div class="panel-grid">
+          <div><div class="pf-label">Account</div><div class="pf-value">${d.customer||'—'}</div></div>
+          <div><div class="pf-label">Contact</div><div class="pf-value">${d.contact||'—'}</div></div>
+          <div><div class="pf-label">Phone / Email</div><div class="pf-value">${d.phone||'—'}</div></div>
+          <div><div class="pf-label">Address</div><div class="pf-value">${d.address||'—'}</div></div>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Device</div>
+        <div class="panel-grid">
+          <div><div class="pf-label">Make</div><div class="pf-value">${d.make||'—'}</div></div>
+          <div><div class="pf-label">Model</div><div class="pf-value">${d.model||'—'}</div></div>
+          <div><div class="pf-label">Serial #</div><div class="pf-value" style="font-family:var(--font-mono);font-size:12px;">${d.serial||'—'}</div></div>
+          <div><div class="pf-label">Age</div><div class="pf-value">${calcAge(d.installDate)||'—'} ${d.installDate ? '(inst. '+fmtDate(d.installDate)+')' : ''}</div></div>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-title">Lease</div>
+        <div class="panel-grid">
+          <div><div class="pf-label">Start</div><div class="pf-value">${fmtDate(d.leaseStart)}</div></div>
+          <div><div class="pf-label">End</div><div class="pf-value">${fmtDate(d.leaseEnd)}</div></div>
+          <div><div class="pf-label">Monthly</div><div class="pf-value">${fmtMoney(d.monthly)}</div></div>
+          <div><div class="pf-label">Annual</div><div class="pf-value">${d.monthly ? '$' + (parseFloat(d.monthly) * 12).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,',') : '—'}</div></div>
+          <div><div class="pf-label">Lease Co.</div><div class="pf-value">${d.leaseCompany||'—'}</div></div>
+          <div><div class="pf-label">Lease #</div><div class="pf-value" style="font-family:var(--font-mono);font-size:12px;">${d.leaseNum||'—'}</div></div>
+        </div>
+      </div>
+      ${d.notes ? `<div class="panel-section"><div class="panel-section-title">Notes</div><div style="font-size:13px;color:var(--text);line-height:1.6;">${d.notes}</div></div>` : ''}
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:8px;">Logged ${new Date(d.created).toLocaleDateString()}</div>
+    </div>`;
+  document.getElementById('detailOverlay').classList.remove('hidden');
+}
+
+function closePanel() { document.getElementById('detailOverlay').classList.add('hidden'); }
+function handlePanelOverlay(e) { if (e.target.id === 'detailOverlay') closePanel(); }
+
+// ── EXPORT ────────────────────────────────────────────────
+function exportCSV() {
+  if (allDevices.length === 0) { showToast('No data to export'); return; }
+  const hdr = ['Customer','Contact','Phone','Address','Make','Model','Serial','Install Date','Age','Lease Start','Lease End','Days Left','Monthly $','Annual $','Lease Co','Lease #','Status','Notes','Logged'];
+  const rows = allDevices.map(d => [
+    d.customer, d.contact, d.phone, d.address, d.make, d.model, d.serial, d.installDate, calcAge(d.installDate),
+    d.leaseStart, d.leaseEnd, daysLeft(d.leaseEnd) ?? '', d.monthly || '', d.monthly ? (parseFloat(d.monthly)*12).toFixed(2) : '',
+    d.leaseCompany, d.leaseNum, getLeaseStatus(d.leaseEnd), d.notes, new Date(d.created).toLocaleDateString()
+  ].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`));
+  const csv = [hdr, ...rows].map(r => r.join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv], {type:'text/csv'})), download: `comptrack_${new Date().toISOString().slice(0,10)}.csv` });
+  a.click();
+  showToast('CSV exported');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
+setupListener();
+setSort('leaseEnd');
+</script>
+</body>
+</html>
