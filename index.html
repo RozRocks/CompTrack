@@ -306,7 +306,30 @@
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script>
+  // ============================================================
+  //  PASTE YOUR FIREBASE CONFIG HERE
+  //  Firebase Console → Project Settings → Your apps → Web app
+  // ============================================================
+const firebaseConfig = {
+
+  apiKey: "AIzaSyBhgeKTEsSMQyXEKGvZ2iMO8yfXTHpLhZo",
+
+  authDomain: "comptrack-d9cff.firebaseapp.com",
+
+  projectId: "comptrack-d9cff",
+
+  storageBucket: "comptrack-d9cff.firebasestorage.app",
+
+  messagingSenderId: "419068288887",
+
+  appId: "1:419068288887:web:191e2b7388a1007caccb72",
+
+  measurementId: "G-L1Z1PNMPJ1"
+
+};
+
+</script>
 
 <script>
 // Init Firebase
@@ -329,10 +352,15 @@ function setSyncStatus(status) {
 }
 
 // ── REAL-TIME LISTENER ───────────────────────────────────
-function setupListener() {
+async function setupListener() {
   setSyncStatus('connecting');
-  db.enablePersistence({ synchronizeTabs: true })
-    .catch(err => console.warn('Offline cache unavailable:', err.code));
+  try {
+    await db.enablePersistence({ synchronizeTabs: true });
+  } catch (err) {
+    // failed-precondition = multiple tabs open, unimplemented = browser doesn't support it
+    // Either way, just continue without persistence
+    console.warn('Offline cache skipped:', err.code);
+  }
   db.collection('devices').onSnapshot(
     snapshot => {
       devices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -341,8 +369,14 @@ function setupListener() {
     },
     err => {
       setSyncStatus('error');
-      showToast('Connection error — check your Firebase config', true);
-      console.error(err);
+      console.error('Firestore error:', err.code, err.message);
+      if (err.code === 'permission-denied') {
+        showToast('Permission denied — update your Firestore rules', true);
+      } else if (err.code === 'unavailable') {
+        showToast('Firestore unavailable — check your network', true);
+      } else {
+        showToast(`DB error: ${err.code}`, true);
+      }
     }
   );
 }
