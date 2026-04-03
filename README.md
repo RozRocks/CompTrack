@@ -1,169 +1,161 @@
-# CompTrack — Competitive Equipment Tracker
+# MBM LeadTool
 
-A two-view web app for field techs to log competitor copiers and sales reps to analyze the data. Hosted free on GitHub Pages with Firebase as the cloud database and photo storage.
-
----
-
-## Architecture
-
-```
-GitHub Pages          Firebase (free tier)
-─────────────         ────────────────────
-index.html      ←──→  Firestore (device records)
-dashboard.html  ←──→  Storage   (device photos)
-firebase-config.js
-```
+Field equipment tracker and sales lead management tool. Built on Firebase + GitHub Pages.
 
 ---
 
-## Setup (takes about 15 minutes)
+## Pages
 
-### Step 1 — Create a Firebase Project
+| Page | URL | Who uses it |
+|------|-----|-------------|
+| `login.html` | `/login.html` | Everyone — entry point |
+| `index.html` | `/` | Field techs — log equipment, submit leads |
+| `dashboard.html` | `/dashboard.html` | Sales reps & admins — view/manage leads |
+| `admin.html` | `/admin.html` | Admins only — manage users |
 
-1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Click **Add project** → name it (e.g. "comptrack") → Continue
-3. Disable Google Analytics if you don't need it → **Create project**
+## User roles
 
----
-
-### Step 2 — Enable Firestore (database)
-
-1. In your project, go to **Build → Firestore Database**
-2. Click **Create database**
-3. Select **Start in test mode** → Next
-4. Choose a region close to you → **Enable**
-
----
-
-### Step 3 — Enable Firebase Storage (photos)
-
-1. Go to **Build → Storage**
-2. Click **Get started**
-3. Select **Start in test mode** → Next
-4. Choose the same region → **Done**
+| Role | Can do |
+|------|--------|
+| **tech** | Log competitive equipment, submit leads to sales reps |
+| **sales** | View leads assigned to them, update status, export reports |
+| **admin** | Everything above + manage all users, view all leads |
 
 ---
 
-### Step 4 — Get your web app credentials
+## Setup
 
-1. Click the **gear icon** (Project Settings) → **General** tab
-2. Scroll to **Your apps** → click the **Web** icon ( `</>` )
-3. Register the app with a nickname (e.g. "comptrack-web") → **Register app**
-4. Copy the `firebaseConfig` object — it looks like this:
+### 1 — Firebase project
 
-```js
-const firebaseConfig = {
-  apiKey: "AIzaSyXXXXXXX...",
-  authDomain: "comptrack-abc12.firebaseapp.com",
-  projectId: "comptrack-abc12",
-  storageBucket: "comptrack-abc12.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abc123"
-};
-```
+Already set up: `comptrack-d9cff`. No changes needed.
 
 ---
 
-### Step 5 — Edit firebase-config.js
+### 2 — Enable Firebase Authentication
 
-Open `firebase-config.js` and replace the placeholder values with your actual credentials from Step 4.
-
-```js
-const firebaseConfig = {
-  apiKey:            "AIzaSyXXX...",   // ← your real values here
-  authDomain:        "comptrack-abc12.firebaseapp.com",
-  projectId:         "comptrack-abc12",
-  storageBucket:     "comptrack-abc12.appspot.com",
-  messagingSenderId: "123456789",
-  appId:             "1:123456789:web:abc123"
-};
-```
-
-> **Note:** Firebase API keys are safe to put in client-side code — this is standard Firebase practice.
-> Security is enforced by Firestore Security Rules, not by keeping the key secret.
+1. Firebase Console → **Authentication** → **Get Started**
+2. Under **Sign-in method**, enable **Email/Password**
+3. Click **Save**
 
 ---
 
-### Step 6 — Push to GitHub
+### 3 — Update Firestore Rules
 
-```bash
-# From this folder:
-git init
-git add .
-git commit -m "Initial CompTrack setup"
-
-# Create a new repo on github.com, then:
-git remote add origin https://github.com/YOUR_USERNAME/comptrack.git
-git branch -M main
-git push -u origin main
-```
-
----
-
-### Step 7 — Enable GitHub Pages
-
-1. Go to your GitHub repo → **Settings** → **Pages** (left sidebar)
-2. Under **Source**, select **Deploy from a branch**
-3. Branch: **main** / folder: **/ (root)** → **Save**
-4. Wait ~60 seconds, then your site is live at:
-   - `https://YOUR_USERNAME.github.io/comptrack/` ← field tech app
-   - `https://YOUR_USERNAME.github.io/comptrack/dashboard.html` ← sales dashboard
-
----
-
-## Sharing with your team
-
-| Role | URL | Purpose |
-|------|-----|---------|
-| Field tech | `...github.io/comptrack/` | Log equipment, take photos |
-| Sales rep | `...github.io/comptrack/dashboard.html` | Analyze data, export CSV |
-
----
-
-## Security (before going to production)
-
-The default Firestore rules allow anyone to read/write — fine for internal use,
-but tighten them before sharing the URL widely.
-
-Go to **Firestore → Rules** and update:
+Go to **Firestore Database → Rules** and replace with:
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow create: if request.auth != null;
+    }
     match /devices/{deviceId} {
-      // Allow all for now — add auth checks here when ready
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
+    }
+    match /leads/{leadId} {
+      allow read, write: if request.auth != null;
     }
   }
 }
 ```
 
-For a protected setup, consider adding Firebase Authentication (Google Sign-In
-takes about 30 minutes to add). Ask for help if you need it.
+Click **Publish**.
 
 ---
 
-## Firebase Free Tier Limits
+### 4 — Create your first admin account
 
-| Resource | Free Limit | Notes |
-|----------|-----------|-------|
-| Firestore reads | 50,000/day | ~50K page loads |
-| Firestore writes | 20,000/day | ~20K device saves |
-| Firestore storage | 1 GB | Device record JSON |
-| Storage (photos) | 5 GB | Plenty for photos |
-| Storage downloads | 1 GB/day | Photo loads |
+Because there are no users yet, you need to create the first admin manually:
 
-More than enough for an internal team tool.
+**Step A — Create the auth login:**
+1. Firebase Console → **Authentication → Users → Add User**
+2. Enter your email and a password
+3. Copy the **UID** shown (looks like `abc123xyz...`)
+
+**Step B — Create the Firestore profile:**
+1. Firebase Console → **Firestore Database → Start collection**
+2. Collection ID: `users`
+3. Document ID: paste your UID from Step A
+4. Add these fields:
+   - `name` (string): Your full name
+   - `email` (string): Your email
+   - `role` (string): `admin`
+   - `isActive` (boolean): `true`
+   - `createdAt` (number): `1700000000000` (any timestamp)
+5. Click **Save**
+
+You can now sign in at `login.html` and use the admin panel to add all other users.
 
 ---
 
-## File structure
+### 5 — Set up EmailJS (lead notifications)
+
+EmailJS sends emails to sales reps when a lead is assigned to them. Free tier allows 200 emails/month.
+
+1. Go to [emailjs.com](https://emailjs.com) → create free account
+2. **Email Services** → Add Service → connect your Gmail or Outlook
+3. **Email Templates** → Create Template with these variables:
 
 ```
-comptrack/
-├── index.html          Field tech app
-├── dashboard.html      Sales rep dashboard
-├── firebase-config.js  ← Edit this with your credentials
-└── README.md
+Subject: New Lead Assigned — {{customer_name}} ({{priority}})
+
+Hi {{to_name}},
+
+A new lead has been assigned to you by {{from_name}}.
+
+CUSTOMER: {{customer_name}}
+ADDRESS:  {{customer_address}}
+PHONE:    {{customer_phone}}
+PRIORITY: {{priority}}
+DATE SEEN: {{interaction_date}}
+TYPE:     {{interaction_type}}
+EQUIPMENT: {{equipment_seen}}
+
+OPPORTUNITY:
+{{opportunity}}
+
+NOTES:
+{{notes}}
+
+View this lead in the dashboard:
+{{dashboard_url}}
 ```
+
+4. Go to **Account → General** → copy your **Public Key**
+5. Open `index.html`, find the email config section, and fill in:
+
+```javascript
+const EMAILJS_PUBLIC_KEY  = 'your_public_key_here';
+const EMAILJS_SERVICE_ID  = 'service_xxxxxxx';
+const EMAILJS_TEMPLATE_ID = 'template_xxxxxxx';
+```
+
+If you skip this step, leads still save to Firestore — reps just won't receive email notifications.
+
+---
+
+### 6 — Push to GitHub
+
+```bash
+git add .
+git commit -m "MBM LeadTool rebrand and features"
+git push origin main
+```
+
+GitHub Pages will redeploy automatically.
+
+---
+
+## Troubleshooting
+
+**"Permission denied" in console** — Firestore rules need updating (see Step 3).
+
+**Email not sending** — Check the EmailJS public key, service ID, and template ID in `index.html`. The lead is still saved even if email fails.
+
+**Can't create users in admin panel** — Make sure Firebase Authentication is enabled (Step 2).
+
+**Sales rep dropdown is empty** — Users need to be created via the admin panel with role `sales` and `isActive: true`.
