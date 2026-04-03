@@ -230,7 +230,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script>
+  // ============================================================
+  //  PASTE YOUR FIREBASE CONFIG HERE
+  //  Firebase Console → Project Settings → Your apps → Web app
+  // ============================================================
+const firebaseConfig = {
+
+  apiKey: "AIzaSyBhgeKTEsSMQyXEKGvZ2iMO8yfXTHpLhZo",
+
+  authDomain: "comptrack-d9cff.firebaseapp.com",
+
+  projectId: "comptrack-d9cff",
+
+  storageBucket: "comptrack-d9cff.firebasestorage.app",
+
+  messagingSenderId: "419068288887",
+
+  appId: "1:419068288887:web:191e2b7388a1007caccb72",
+
+  measurementId: "G-L1Z1PNMPJ1"
+
+};
+
+</script>
 
 <script>
 firebase.initializeApp(firebaseConfig);
@@ -268,10 +291,13 @@ function setSyncStatus(s) {
 }
 
 // ── FIRESTORE LISTENER ───────────────────────────────────
-function setupListener() {
+async function setupListener() {
   setSyncStatus('connecting');
-  db.enablePersistence({ synchronizeTabs: true })
-    .catch(err => console.warn('Offline cache unavailable:', err.code));
+  try {
+    await db.enablePersistence({ synchronizeTabs: true });
+  } catch (err) {
+    console.warn('Offline cache skipped:', err.code);
+  }
   db.collection('devices').onSnapshot(snapshot => {
     allDevices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     setSyncStatus('connected');
@@ -281,7 +307,12 @@ function setupListener() {
     renderTable();
   }, err => {
     setSyncStatus('error');
-    console.error(err);
+    console.error('Firestore error:', err.code, err.message);
+    if (err.code === 'permission-denied') {
+      showToast('Permission denied — update your Firestore rules');
+    } else {
+      showToast(`DB error: ${err.code}`);
+    }
   });
 }
 
