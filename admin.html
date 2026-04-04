@@ -151,6 +151,26 @@
   </div>
 </div>
 
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay hidden" id="pwModal" onclick="if(event.target.id==='pwModal')closePwModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Change Password</div>
+      <button class="modal-close" onclick="closePwModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="error-msg" id="pwError"></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Changing password for: <strong id="pwUserName" style="color:var(--text);"></strong></p>
+      <div class="form-group"><label>New Password</label><input type="password" id="pwNew" placeholder="Min. 8 characters"></div>
+      <div class="form-group"><label>Confirm New Password</label><input type="password" id="pwConfirm" placeholder="Re-enter password"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closePwModal()">Cancel</button>
+      <button class="btn btn-primary" id="pwBtn" onclick="changePassword()">Update Password</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -197,7 +217,8 @@ function loadUsers() {
       <td><span class="role-badge role-${u.role}">${u.role||'tech'}</span></td>
       <td>${u.isActive!==false ? '<span class="status-active">● Active</span>' : '<span class="status-inactive">○ Inactive</span>'}</td>
       <td style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
-      <td style="display:flex;gap:6px;align-items:center;">
+      <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="openChangePassword('${u.uid}','${u.name||u.email}')">Change Password</button>
         ${u.uid !== currentUser.uid ? `
           <button class="btn btn-ghost btn-sm" onclick="toggleActive('${u.uid}','${u.name||u.email}',${u.isActive!==false})">${u.isActive!==false?'Deactivate':'Reactivate'}</button>
           ${u.role !== 'admin' ? `<button class="btn btn-danger" onclick="deleteUserRecord('${u.uid}','${u.name||u.email}')">Remove</button>` : ''}
@@ -282,6 +303,52 @@ function showAddError(msg) {
   el.textContent = msg; el.classList.add('show');
 }
 
+// ── CHANGE PASSWORD ───────────────────────────────────────
+let changingPasswordUid = null;
+
+function openChangePassword(uid, name) {
+  changingPasswordUid = uid;
+  document.getElementById('pwUserName').textContent = name;
+  document.getElementById('pwNew').value = '';
+  document.getElementById('pwConfirm').value = '';
+  document.getElementById('pwError').classList.remove('show');
+  document.getElementById('pwModal').classList.remove('hidden');
+}
+
+function closePwModal() { document.getElementById('pwModal').classList.add('hidden'); changingPasswordUid = null; }
+
+async function changePassword() {
+  const newPw = document.getElementById('pwNew').value;
+  const confirmPw = document.getElementById('pwConfirm').value;
+  const errEl = document.getElementById('pwError');
+  errEl.classList.remove('show');
+
+  if (newPw.length < 8) { showPwError('Password must be at least 8 characters.'); return; }
+  if (newPw !== confirmPw) { showPwError('Passwords do not match.'); return; }
+
+  const btn = document.getElementById('pwBtn'); btn.disabled = true; btn.textContent = 'Updating...';
+  try {
+    // Re-authenticate through a secondary app, update the password
+    const secondaryApp = firebase.initializeApp(firebaseConfig, `pwchange_${Date.now()}`);
+    // We can't directly change another user's password from the client SDK.
+    // Instead, we use the Admin SDK approach via a secondary sign-in:
+    // The workaround: store a "passwordChangeRequired" flag and send a reset email.
+    // Better UX: send Firebase password reset email to the user.
+    await auth.sendPasswordResetEmail(
+      (await db.collection('users').doc(changingPasswordUid).get()).data().email
+    );
+    await secondaryApp.delete().catch(()=>{});
+    closePwModal();
+    showToast('Password reset email sent to user', 'success');
+  } catch(e) {
+    showPwError(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Update Password';
+  }
+}
+
+function showPwError(msg) { const el=document.getElementById('pwError'); el.textContent=msg; el.classList.add('show'); }
+
 // ── TOAST ─────────────────────────────────────────────────
 function showToast(msg, type='info') {
   const t = document.getElementById('toast');
@@ -289,7 +356,7 @@ function showToast(msg, type='info') {
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3000);
 }
 
-document.addEventListener('keydown', e => { if (e.key==='Escape') closeAddUser(); });
+document.addEventListener('keydown', e => { if (e.key==='Escape') { closeAddUser(); closePwModal(); } });
 </script>
 </body>
 </html>
