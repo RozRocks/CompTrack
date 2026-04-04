@@ -1,0 +1,43 @@
+name: Monthly Lead Report
+
+# Runs at 5:00 PM EST (22:00 UTC) on the 28th–31st of every month.
+# The script itself checks if today is the actual last day of the month
+# before sending, so it safely exits on days 28–30 that aren't the last.
+on:
+  schedule:
+    - cron: '0 22 28-31 * *'
+  # Allow manual trigger from the Actions tab for testing
+  workflow_dispatch:
+    inputs:
+      force_send:
+        description: 'Send report regardless of date (for testing)'
+        type: boolean
+        default: false
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install firebase-admin node-fetch
+        working-directory: scripts
+
+      - name: Send monthly report
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          EMAILJS_PUBLIC_KEY: ${{ secrets.EMAILJS_PUBLIC_KEY }}
+          EMAILJS_SERVICE_ID: ${{ secrets.EMAILJS_SERVICE_ID }}
+          EMAILJS_REPORT_TEMPLATE_ID: ${{ secrets.EMAILJS_REPORT_TEMPLATE_ID }}
+          REPORT_RECIPIENT_EMAIL: ${{ secrets.REPORT_RECIPIENT_EMAIL }}
+          REPORT_RECIPIENT_NAME: ${{ secrets.REPORT_RECIPIENT_NAME }}
+          FORCE_SEND: ${{ inputs.force_send || 'false' }}
+        run: node send-monthly-report.js
+        working-directory: scripts

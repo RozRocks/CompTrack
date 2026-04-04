@@ -1,0 +1,10 @@
+{
+  "name": "mbm-monthly-report",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Automated monthly lead report sender for MBM LeadTool",
+  "main": "send-monthly-report.js",
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
