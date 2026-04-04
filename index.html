@@ -356,7 +356,7 @@
             </div>
           </div>
         </div>
-        <div class="form-row"><div class="form-group"><label>Assign to Sales Rep *</label><select id="lAssignTo"><option value="">Select sales rep...</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label>Assign to Sales Rep</label><select id="lAssignTo"><option value="">— Leave Unassigned —</option></select></div></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -621,7 +621,7 @@ function selectPriority(p) {
 
 function populateSalesRepDropdown() {
   const sel = document.getElementById('lAssignTo');
-  sel.innerHTML = '<option value="">Select sales rep...</option>' + salesReps.map(r => `<option value="${r.uid}" data-email="${r.email}" data-name="${r.name}">${r.name}</option>`).join('');
+  sel.innerHTML = '<option value="">— Leave Unassigned —</option>' + salesReps.map(r => `<option value="${r.uid}" data-email="${r.email}" data-name="${r.name}">${r.name}</option>`).join('');
 }
 
 function collectContacts() {
@@ -642,13 +642,12 @@ async function saveLead() {
   if (!business) { showToast('Business name is required', 'error'); return; }
   if (!interactionDate) { showToast('Interaction date is required', 'error'); return; }
   if (!selectedPriority) { showToast('Please select a priority', 'error'); return; }
-  if (!assignedUid) { showToast('Please assign to a sales rep', 'error'); return; }
 
   const btn = document.getElementById('lSaveBtn'); btn.disabled = true; btn.textContent = 'Submitting...';
   try {
     const selectedOpt = assignTo.options[assignTo.selectedIndex];
-    const repName = selectedOpt.dataset.name || selectedOpt.text;
-    const repEmail = selectedOpt.dataset.email || '';
+    const repName = assignedUid ? (selectedOpt.dataset.name || selectedOpt.text) : 'Unassigned';
+    const repEmail = assignedUid ? (selectedOpt.dataset.email || '') : '';
     const leadData = {
       createdAt: Date.now(), submittedBy: currentUser.uid, submittedByName: currentUser.name || currentUser.email,
       businessName: business, phone: document.getElementById('lPhone').value.trim(),
